@@ -1,0 +1,47 @@
+{% extends 'layouts/home.html' %}
+{% load static %}
+
+
+{% block home_content %}
+<div>
+    <div class="flex gap-4">
+        <!-- Sidebar -->
+        <aside class="h-full hidden lg:block sticky top-16" aria-label="Sidebar">
+            <div class="overflow-y-auto p-2 border-gray-200 h-full">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'profile' %}"
+                            class="flex items-center py-2 px-4 font-normal rounded-lg hover:bg-gray-100 {% if request.path == '/accounts/profile/' %}bg-gray-100{% endif %}">
+                            <span>Профиль</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'edit_profile' %}"
+                            class="flex items-center py-2 px-4 font-normal rounded-lg hover:bg-gray-100 {% if request.path == '/accounts/profile/edit/' %}bg-gray-100{% endif %}">
+                            <span>Профильді өңдеу</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'password_change' %}"
+                            class="flex items-center py-2 px-4 font-normal rounded-lg hover:bg-gray-100 {% if request.path == '/accounts/profile/password_change/' %}bg-gray-100{% endif %}">
+                            <span>Құпия сөзді өзгерту</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'delete_profile' %}"
+                            class="flex items-center py-2 px-4 font-normal rounded-lg hover:bg-gray-100 {% if request.path == '/accounts/profile/delete/' %}bg-gray-100{% endif %}">
+                            <span>Профильді жою</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="flex-grow">
+            {% block profile_content %}
+            {% endblock profile_content %}
+        </div>
+    </div>
+</div>
+{% endblock home_content %}

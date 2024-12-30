@@ -1,0 +1,48 @@
+{% extends 'layouts/accounts.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Жүйеге кіру | Aralas Oqytu
+{% endblock title %}
+
+
+{% block layout_content %}
+<div class="w-full h-full sm:max-w-screen-sm mx-auto flex flex-col justify-center gap-5">
+    <a href="{% url 'main' %}" class="flex items-center gap-2 lg:hidden w-full justify-center">
+        <img src="{% static 'images/logo.png' %}" class="w-24" alt="">
+        <span class="text-4xl font-black">Aralas Oqytu</span>
+    </a>
+
+    <h1 class="text-2xl md:text-3xl lg:4xl font-semibold text-center">Жүйеге кіру</h1>
+    <form method="post" class="w-full">
+        {% csrf_token %}
+        {{ form | crispy }}
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <button 
+                type="submit" 
+                class="w-full md:w-auto flex justify-center md:justify-start items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+            >
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z" clip-rule="evenodd"/>
+                </svg>
+                <span>Жүйеге кіру</span>
+            </button>
+
+            <a href="{% url 'password_reset' %}" class="inline-flex items-center font-medium text-green-600 dark:text-green-500 hover:underline">
+                Парольді ұмыттыңыз ба?
+                <svg class="w-4 h-4 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </a>
+        </div>
+
+    </form>
+    <div class="w-full">
+        <a href="{% url 'signup' %}" class="w-full block text-center py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100">
+            Тіркелу
+        </a>
+    </div>
+</div>
+{% endblock layout_content %}

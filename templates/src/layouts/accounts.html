@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="w-full h-screen overflow-hidden grid lg:grid-cols-2">
+    <div class="w-full h-full bg-gray-100 hidden lg:flex justify-center items-center">
+        <div class="max-w-screen-sm px-5 w-full mx-auto flex flex-col items-center text-center">
+            <a href="{% url 'main' %}" class="flex gap-2 items-center">
+                <img src="{% static 'images/logo.png' %}" class="w-36" alt="">
+                <span class="text-6xl font-black">Aralas Oqytu</span>
+            </a>
+            <span class="text-gray-500">
+                Дәстүрлі сыныптағы оқыту мен онлайн оқыту әдістерін біріктіретін білім беру моделі
+            </span>
+        </div>
+    </div>
+
+    <div class="overflow-auto p-5">
+        {% block layout_content %}
+        {% endblock layout_content %}
+    </div>
+</div>
+{% endblock content %}

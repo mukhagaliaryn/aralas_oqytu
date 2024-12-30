@@ -1,0 +1,58 @@
+{% extends 'layouts/profiles.html' %}
+{% load static %}
+
+{% block title %}
+    {{ user_profile.username }} | e-Teacher
+{% endblock title %}
+
+
+{% block profile_content %}
+<div>
+    <div class="w-full block bg-gray-100 rounded-lg">
+        <div class="flex flex-col items-center p-10">
+            <img 
+                class="w-32 h-32 sm:w-48 sm:h-48 mb-3 rounded-full shadow-lg"
+                src="{% if user_profile.avatar %}{{ user_profile.avatar.url }}{% else %}{% static '/images/user.png'%}{% endif %}"
+                alt="Bonnie image" 
+            />
+            <h1 class="text-4xl font-bold">{{ user.first_name }} {{ user.last_name }}</h1>
+            <span class="block font-medium">@{{ user_profile.username }}</span>
+            <a href="#" class="font-medium underline text-green-600">
+                {{ user_profile.email }}
+            </a>
+            <span class="block text-gray-500">{{ user_profile.profession }}</span>
+            <div class="flex flex-col sm:flex-row mt-4 md:mt-6">
+                <a 
+                    href="{% url 'home' %}" 
+                    class="text-white text-center bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+                >
+                    Басты бетке өту
+                </a>
+                <a 
+                    href="{% url 'edit_profile' %}"
+                    class="py-2.5 px-5 me-2 mb-2 text-center text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                >
+                    Профилде өзгеріс жасау
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    {% if request.user.is_superuser %}
+        <div class="max-w-screen-md w-full flex flex-col items-center gap-4 mx-auto my-10">
+            <img src="{% static '/images/empty.png' %}" class="w-48" alt="">
+            <h1 class="text-2xl font-bold">Курстарды жүктеу</h1>
+            <span class="text-center">
+                Админ панеліне кіріп, курстарды тиісті категорияға байланысты қосыңыз.
+            </span>
+            <a 
+                href="/admin/" target="_blank"
+                class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+            >
+                Басқару панеліне өту
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock profile_content %}
