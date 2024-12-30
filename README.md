@@ -1,1 +1,1 @@
-# e-Teacher.kz
+# ARALAS OQYTU
