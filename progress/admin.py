@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django_summernote.admin import SummernoteModelAdmin
-from .models import UserSubject, UserLesson, UserHomework, Homework, Comment, UserTest, UserAnswer
+from .models import UserSubject, UserLesson, Comment, UserTest, UserAnswer
 
 
 @admin.register(UserSubject)
@@ -15,19 +14,6 @@ class UserLessonAdmin(admin.ModelAdmin):
     list_display = ('user_subject', 'lesson', 'lesson_score', 'completed', 'completed_at')
     list_filter = ('completed', )
     search_fields = ('user_subject__user__username', 'lesson__title')
-
-
-class UserHomeworkTab(admin.TabularInline):
-    model = UserHomework
-    extra = 0
-
-@admin.register(Homework)
-class HomeworkAdmin(SummernoteModelAdmin):
-    list_display = ('title', 'lesson', )
-    search_fields = ('title',)
-    list_filter = ('lesson', )
-
-    inlines = (UserHomeworkTab, )
 
 
 @admin.register(Comment)

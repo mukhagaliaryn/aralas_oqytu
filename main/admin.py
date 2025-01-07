@@ -1,15 +1,6 @@
 from django.contrib import admin
-from progress.models import Homework
-from .models import Category, Subject, Chapter, Lesson, TextContent, VideoContent, FrameContent, \
-    LessonDocs, Test, Question, Option
+from .models import Subject, Chapter, Lesson, TextContent, VideoContent, LessonDocs, Test, Question, Option
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
-
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', )
-    search_fields = ('name', 'slug', )
-    ordering = ('name',)
 
 
 # Subject admin
@@ -19,10 +10,8 @@ class ChapterTab(admin.TabularInline):
 
 @admin.register(Subject)
 class SubjectAdmin(SummernoteModelAdmin):
-    list_display = ('title', 'category', 'created_at', 'view', )
-    list_filter = ('category',)
+    list_display = ('title', 'created_at', 'view', )
     search_fields = ('title', 'description')
-    filter_horizontal = ('observers', )
     inlines = (ChapterTab, )
 
 
@@ -48,19 +37,11 @@ class VideoContentTab(admin.TabularInline):
     model = VideoContent
     extra = 0
 
-class FrameContentTab(admin.TabularInline):
-    model = FrameContent
-    extra = 0
-
 
 class FileDocTab(admin.TabularInline):
     model = LessonDocs
     extra = 0
 
-
-class HomeworkTab(SummernoteModelAdminMixin, admin.TabularInline):
-    model = Homework
-    extra = 0
 
 
 @admin.register(Lesson)
@@ -68,7 +49,7 @@ class LessonAdmin(SummernoteModelAdmin):
     list_display = ('title', 'chapter', 'lesson_type', 'order')
     list_filter = ('subject', 'chapter', 'lesson_type', )
     ordering = ('chapter', 'order')
-    inlines = (TextContentTab, VideoContentTab, FrameContentTab, FileDocTab, HomeworkTab, )
+    inlines = (TextContentTab, VideoContentTab, FileDocTab, )
 
 
 # Test

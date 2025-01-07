@@ -1,33 +1,12 @@
-from email.policy import default
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from accounts.models import User
-
-
-# Category model
-class Category(models.Model):
-    name = models.CharField(_('Атауы'), max_length=255)
-    slug = models.SlugField(_('Кілттік атауы'), max_length=255, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _('Категория')
-        verbose_name_plural = _('Категориялар')
 
 
 # Subject model
 class Subject(models.Model):
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE,
-        verbose_name=_('Категория'), related_name="subjects"
-    )
     title = models.CharField(_('Тақырыбы'), max_length=255)
     poster = models.ImageField(_('Постер'), blank=True, null=True, upload_to='main/subject/posters')
     description = models.TextField(_('Анықтамасы'), blank=True, null=True)
-    observers = models.ManyToManyField(User, verbose_name=_('Жазылушылар'), related_name='access_subjects', blank=True)
     created_at = models.DateTimeField(_('Уақыты'), auto_now_add=True)
     view = models.PositiveIntegerField(_('Қаралым'), default=0)
 
@@ -37,7 +16,7 @@ class Subject(models.Model):
     class Meta:
         verbose_name = _('Курс')
         verbose_name_plural = _('Курстар')
-        ordering = ('-created_at', )
+        ordering = ('created_at', )
 
 
 # Chapter model
@@ -133,22 +112,6 @@ class VideoContent(models.Model):
     class Meta:
         verbose_name = _('Видео контент')
         verbose_name_plural = _('Видео контенттер')
-
-
-# FrameContent model
-class FrameContent(models.Model):
-    lesson = models.ForeignKey(
-        Lesson, on_delete=models.CASCADE,
-        verbose_name=_('Сабақ'), related_name="frame_contents"
-    )
-    url = models.TextField(_('URL сілтеме'))
-
-    def __str__(self):
-        return f"Фреймконтент: {self.lesson.title}"
-
-    class Meta:
-        verbose_name = _('Фрейм контент')
-        verbose_name_plural = _('Фрейм контенттер')
 
 
 # Test content
