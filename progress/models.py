@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import User
-from main.models import Subject, Lesson
+from main.models import Subject, Lesson, Test, Question, Option
 from django.utils.translation import gettext_lazy as _
 
 
@@ -91,6 +91,57 @@ class UserHomework(models.Model):
     class Meta:
         verbose_name = _('Қолданушының үй жұмысы')
         verbose_name_plural = _('Қолданушылардың үй жұмыстары')
+
+
+# 🧑‍🎓 UserTest model
+class UserTest(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='user_tests', verbose_name=_('Қолданушы')
+    )
+    test = models.ForeignKey(
+        Test, on_delete=models.CASCADE,
+        related_name='user_tests', verbose_name=_('Тест')
+    )
+    score = models.PositiveIntegerField(_('Балл'), default=0)
+    completed = models.BooleanField(_('Аяқталды'), default=False)
+    submitted_at = models.DateTimeField(_('Жіберілген уақыт'), auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.test.title} ({self.score} ұпай)"
+
+    class Meta:
+        verbose_name = _('Қолданушының тесті')
+        verbose_name_plural = _('Қолданушылардың тесттері')
+
+
+# UserAnswer model
+class UserAnswer(models.Model):
+    user_test = models.ForeignKey(
+        UserTest, on_delete=models.CASCADE,
+        related_name='answers', verbose_name=_('Қолданушы тесті')
+    )
+    answers = models.ManyToManyField(Option, verbose_name=_('Жауаптар'))
+    score = models.PositiveSmallIntegerField(_('Балл'), default=0)
+
+    def calculate_score(self):
+        correct_answers = self.question.options.filter(is_correct=True)
+        selected_correct_answers = self.answers.filter(is_correct=True)
+
+        if set(correct_answers) == set(selected_correct_answers):
+            self.score = self.question.test.total_score // self.question.test.questions.count()
+        else:
+            self.score = 0
+
+        self.save()
+
+    def __str__(self):
+        return f"{self.user_test.user.username} - {self.question.text} ({self.score} ұпай)"
+
+
+    class Meta:
+        verbose_name = _('Қолданушының жауабы')
+        verbose_name_plural = _('Қолданушылардың жауаптары')
 
 
 # Comment model

@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from accounts.models import User
-from main.models import Category, Subject, Lesson, Chapter
-from progress.models import UserSubject, UserLesson, Homework, Comment, UserHomework
+from main.models import Category, Subject, Lesson, Chapter, Test, Question, Option
+from progress.models import UserSubject, UserLesson, Homework, Comment, UserHomework, UserTest, UserAnswer
 
 
 # Main view
@@ -149,10 +149,12 @@ def lesson_detail(request, user_subject_pk, user_lesson_pk):
     homeworks = Homework.objects.filter(lesson=user_lesson.lesson)
     user_homeworks_done = UserHomework.objects.filter(student=request.user, homework__in=homeworks, is_done=True)
     send_homeworks = [user_homework.homework for user_homework in request.user.homeworks.filter(homework__in=homeworks)]
+    tests = Test.objects.filter(lesson=user_lesson.lesson)
 
     if request.method == 'POST':
         action = request.POST.get('action')
 
+        # 1️⃣ Пікір жіберу
         if action == 'submit_comment':
             content = request.POST.get('content')
             rating = request.POST.get('score')
@@ -168,8 +170,8 @@ def lesson_detail(request, user_subject_pk, user_lesson_pk):
                     score=int(rating)
                 )
                 messages.success(request, 'Пікіріңіз сәтті жіберілді!')
-                return redirect('lesson_detail', user_subject_pk=user_subject.pk, user_lesson_pk=user_lesson.pk)
 
+        # 2️⃣ Үй тапсырмасын жіберу
         elif action == 'submit_homework':
             homework_id = request.POST.get('homework_id')
             homework = get_object_or_404(Homework, pk=homework_id)
@@ -184,35 +186,59 @@ def lesson_detail(request, user_subject_pk, user_lesson_pk):
                 user_homework.submission = submission
                 user_homework.save()
                 messages.success(request, f"Үй жұмысы '{homework.title}' сәтті жіберілді!")
-                return redirect('lesson_detail', user_subject_pk=user_subject.pk, user_lesson_pk=user_lesson.pk)
             else:
                 messages.error(request, "Тапсырманы жіберу үшін құжатты тіркеу қажет!")
 
+        # 3️⃣ Тестті аяқтау және бағалау
+        elif action == 'submit_test':
+            user_test, created = UserTest.objects.get_or_create(
+                user=request.user,
+                test__lesson=user_lesson.lesson
+            )
+
+            total_test_score = 0
+            for question in Question.objects.filter(test__lesson=user_lesson.lesson):
+                selected_option_ids = request.POST.getlist(f'question_{question.id}')
+                user_answer, created = UserAnswer.objects.get_or_create(
+                    user_test=user_test,
+                    question=question
+                )
+                user_answer.answers.set(Option.objects.filter(id__in=selected_option_ids))
+                user_answer.score = sum(option.is_correct for option in user_answer.answers.all()) * 10
+                user_answer.save()
+                total_test_score += user_answer.score
+
+            user_test.score = total_test_score
+            user_test.completed = True
+            user_test.save()
+
+            messages.success(request, f"Тест аяқталды! Сіздің ұпайыңыз: {user_test.score}")
+
+        # 4️⃣ Сабақты аяқтау
         elif action == 'complete_lesson':
-            total_score = sum(uh.grade for uh in user_homeworks_done)
-            count = user_homeworks_done.count()
+            # Үй жұмысының орташа баллы
+            total_homework_score = sum(uh.grade for uh in user_homeworks_done)
+            homework_count = user_homeworks_done.count()
+            avg_homework_score = (total_homework_score / homework_count) if homework_count > 0 else 0
 
-            if count > 0:
-                user_lesson.lesson_score = total_score / count
-            else:
-                user_lesson.lesson_score = 100
+            # Тесттің орташа баллы
+            user_test = UserTest.objects.filter(user=request.user, test__lesson=user_lesson.lesson).first()
+            test_score = user_test.score if user_test else 0
 
+            # Жалпы ортақ балл
+            user_lesson.lesson_score = (avg_homework_score + test_score) / 2
             user_lesson.completed = True
             user_lesson.completed_at = timezone.now()
             user_lesson.save()
 
-            completed_lessons = UserLesson.objects.filter(
-                user_subject=user_subject, completed=True
-            )
+            # Жалпы пәннің ортақ пайызы
+            completed_lessons = UserLesson.objects.filter(user_subject=user_subject, completed=True)
             total_score = sum(lesson.lesson_score for lesson in completed_lessons)
-
             total_lessons = UserLesson.objects.filter(user_subject=user_subject).count()
-            if total_lessons > 0:
-                user_subject.total_percent = total_score / total_lessons
-            else:
-                user_subject.total_percent = 0
 
+            user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
             user_subject.save()
+
             messages.success(request, 'Сабақ аяқталды!')
 
     chapters_with_lessons = []
@@ -226,29 +252,18 @@ def lesson_detail(request, user_subject_pk, user_lesson_pk):
             'user_lessons': lessons
         })
 
-    next_lesson = Lesson.objects.filter(
-        chapter=user_lesson.lesson.chapter,
-        order__gt=user_lesson.lesson.order
-    ).order_by('order').first()
-
-    next_user_lesson = None
-    if next_lesson:
-        next_user_lesson = UserLesson.objects.filter(
-            user_subject=user_subject,
-            lesson=next_lesson
-        ).first()
-
     context = {
         'user_lesson': user_lesson,
         'user_subject': user_subject,
         'chapters_with_lessons': chapters_with_lessons,
-        'next_user_lesson': next_user_lesson,
         'comments': comments,
         'send_homeworks': send_homeworks,
         'homeworks': homeworks,
         'user_homeworks_done': user_homeworks_done,
+        'tests': tests
     }
     return render(request, 'home/lesson_detail.html', context)
+
 
 
 

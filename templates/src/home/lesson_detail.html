@@ -93,6 +93,99 @@
                         </div>
                     {% endif %}
 
+                    {% if tests|length > 0 %}
+                        <div class="swiper-slide">
+                            <div class="swiper lessonSwiper2 swiper-v w-full h-full">
+                                <div class="swiper-wrapper">
+                                    {% for item in tests %}
+                                        <div class="swiper-slide relative flex items-center justify-center">
+                                            <div class="max-w-screen-lg w-full">
+                                                <h1 class="text-2xl font-bold text-center">Тест тапсырмасы: {{ item.title }}</h1>
+                                                <p class="text-center text-gray-500 mb-8">{{ item.description|safe }}</p>
+                                                
+                                                <form method="post" id="test-form">
+                                                    {% csrf_token %}
+                                                    <div id="question-container" class="p-6 bg-white rounded-lg shadow-md">
+                                                        {% for question in item.questions.all %}
+                                                        <div class="question hidden" data-index="{{ forloop.counter0 }}">
+                                                            <h2 class="text-lg font-semibold mb-4">{{ forloop.counter }}. {{ question.text|safe }}</h2>
+                                                            <div class="space-y-2">
+                                                                {% for option in question.options.all %}
+                                                                <label class="flex items-center gap-2">
+                                                                    <input type="checkbox" name="question_{{ question.id }}" value="{{ option.id }}"
+                                                                        class="text-green-500">
+                                                                    {{ option.text|safe }}
+                                                                </label>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                
+                                                    <!-- Батырмалар -->
+                                                    <div class="flex justify-between items-center mt-6">
+                                                        <button type="button" id="prev-btn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg disabled:opacity-50"
+                                                            disabled>
+                                                            ⬅️ Артқа
+                                                        </button>
+                                                        <button type="button" id="next-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg">
+                                                            Келесі ➡️
+                                                        </button>
+                                                        <button type="submit" id="finish-btn" class="px-4 py-2 bg-green-500 text-white rounded-lg hidden">
+                                                            ✅ Аяқтау
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', function () {
+                                                    const questions = document.querySelectorAll('.question');
+                                                    const prevBtn = document.getElementById('prev-btn');
+                                                    const nextBtn = document.getElementById('next-btn');
+                                                    const finishBtn = document.getElementById('finish-btn');
+                                                    let currentQuestionIndex = 0;
+
+                                                    // Сұрақтарды көрсету/жасыру функциясы
+                                                    function showQuestion(index) {
+                                                        questions.forEach((question, i) => {
+                                                            question.classList.toggle('hidden', i !== index);
+                                                        });
+
+                                                        // Батырмалар күйін жаңарту
+                                                        prevBtn.disabled = index === 0; // Бірінші сұрақта Артқа батырмасы өшіріледі.
+                                                        nextBtn.classList.toggle('hidden', index === questions.length - 1); // Соңғы сұрақта Келесі жасырылады.
+                                                        finishBtn.classList.toggle('hidden', index !== questions.length - 1); // Соңғы сұрақта Аяқтау белсенді.
+                                                    }
+
+                                                    // Кері батырмасы
+                                                    prevBtn.addEventListener('click', () => {
+                                                        if (currentQuestionIndex > 0) {
+                                                            currentQuestionIndex--;
+                                                            showQuestion(currentQuestionIndex);
+                                                        }
+                                                    });
+
+                                                    // Келесі батырмасы
+                                                    nextBtn.addEventListener('click', () => {
+                                                        if (currentQuestionIndex < questions.length - 1) {
+                                                            currentQuestionIndex++;
+                                                            showQuestion(currentQuestionIndex);
+                                                        }
+                                                    });
+
+                                                    // Бастапқы сұрақты көрсету
+                                                    showQuestion(currentQuestionIndex);
+                                                });
+                                            </script>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <!-- Homeworks/Finish lesson -->
                     <div class="swiper-slide w-full h-full flex justify-center items-center">
                         {% if user_lesson.completed %}

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from progress.models import Homework
 from .models import Category, Subject, Chapter, Lesson, TextContent, VideoContent, FrameContent, \
-    LessonDocs
+    LessonDocs, Test, Question, Option
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
 
 
@@ -69,3 +69,32 @@ class LessonAdmin(SummernoteModelAdmin):
     list_filter = ('subject', 'chapter', 'lesson_type', )
     ordering = ('chapter', 'order')
     inlines = (TextContentTab, VideoContentTab, FrameContentTab, FileDocTab, HomeworkTab, )
+
+
+# Test
+class QuestionTab(SummernoteModelAdminMixin, admin.TabularInline):
+    model = Question
+    extra = 0
+
+
+@admin.register(Test)
+class TestAdmin(admin.ModelAdmin):
+    list_display = ('title', 'lesson', 'total_score')
+    search_fields = ('title', 'lesson__title')
+
+    inlines = (QuestionTab, )
+
+
+# Option
+class OptionTab(SummernoteModelAdminMixin, admin.TabularInline):
+    model = Option
+    extra = 0
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('text', 'test', 'order')
+    search_fields = ('text', 'test__title')
+    ordering = ('order',)
+
+    inlines = (OptionTab, )

@@ -149,3 +149,56 @@ class FrameContent(models.Model):
     class Meta:
         verbose_name = _('Фрейм контент')
         verbose_name_plural = _('Фрейм контенттер')
+
+
+# Test content
+class Test(models.Model):
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE,
+        related_name='tests', verbose_name=_('Сабақ')
+    )
+    title = models.CharField(_('Тақырыбы'), max_length=255)
+    description = models.TextField(_('Тест сипаттамасы'), blank=True, null=True)
+    total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
+
+    def __str__(self):
+        return f"{self.title} ({self.lesson.title})"
+
+    class Meta:
+        verbose_name = _('Тест')
+        verbose_name_plural = _('Тесттер')
+
+
+# Question model
+class Question(models.Model):
+    test = models.ForeignKey(
+        Test, on_delete=models.CASCADE,
+        related_name='questions', verbose_name=_('Тест')
+    )
+    text = models.CharField(_('Сұрақ мәтіні'), max_length=500)
+    order = models.PositiveIntegerField(_('Реті'), default=0)
+
+    def __str__(self):
+        return f"{self.text} ({self.test.title})"
+
+    class Meta:
+        verbose_name = _('Сұрақ')
+        verbose_name_plural = _('Сұрақтар')
+        ordering = ['order']
+
+
+# Option model
+class Option(models.Model):
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE,
+        related_name='options', verbose_name=_('Сұрақ')
+    )
+    text = models.TextField(_('Жауап мәтіні'), max_length=255)
+    is_correct = models.BooleanField(_('Дұрыс жауап'), default=False)
+
+    def __str__(self):
+        return f"{self.text} ({'Дұрыс' if self.is_correct else 'Қате'})"
+
+    class Meta:
+        verbose_name = _('Жауап нұсқасы')
+        verbose_name_plural = _('Жауап нұсқалары')
