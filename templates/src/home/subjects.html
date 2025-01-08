@@ -1,0 +1,81 @@
+{% extends 'layouts/home.html' %}
+{% load static %}
+
+
+{% block title %}
+    Барлық пән бағдарламалары | Аралас оқыту
+{% endblock title %}
+
+
+{% block home_content %}
+<div class="2xl:container mx-auto grid gap-8 pt-4">
+    <!-- All courses -->
+    <div class="grid gap-8">
+        <div class="grid gap-2 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {% for item in all_subjects %}
+                <div class="bg-white border border-gray-200 rounded-lg transition-all hover:bg-gray-100">
+                    <a href="{% url 'subject_detail' item.id %}">
+                        <img 
+                            class="rounded-t-lg" 
+                            src="{% if item.poster %}{{ item.poster.url }}{% else %}{% static 'images/poster.png' %}{% endif %}" 
+                            alt="product image" 
+                        />
+                    </a>
+                    
+                    <div class="p-5">
+                        <div class="flex gap-2">
+                            <a href="{% url 'subject_detail' item.id %}">
+                                <h5 class="text-xl font-semibold tracking-tight text-gray-900 line-clamp-1">
+                                    {{ item.title }}
+                                </h5>
+                            </a>
+                            <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2c-.791 0-1.55.314-2.11.874l-.893.893a.985.985 0 0 1-.696.288H7.04A2.984 2.984 0 0 0 4.055 7.04v1.262a.986.986 0 0 1-.288.696l-.893.893a2.984 2.984 0 0 0 0 4.22l.893.893a.985.985 0 0 1 .288.696v1.262a2.984 2.984 0 0 0 2.984 2.984h1.262c.261 0 .512.104.696.288l.893.893a2.984 2.984 0 0 0 4.22 0l.893-.893a.985.985 0 0 1 .696-.288h1.262a2.984 2.984 0 0 0 2.984-2.984V15.7c0-.261.104-.512.288-.696l.893-.893a2.984 2.984 0 0 0 0-4.22l-.893-.893a.985.985 0 0 1-.288-.696V7.04a2.984 2.984 0 0 0-2.984-2.984h-1.262a.985.985 0 0 1-.696-.288l-.893-.893A2.984 2.984 0 0 0 12 2Zm3.683 7.73a1 1 0 1 0-1.414-1.413l-4.253 4.253-1.277-1.277a1 1 0 0 0-1.415 1.414l1.985 1.984a1 1 0 0 0 1.414 0l4.96-4.96Z" clip-rule="evenodd"/>
+                            </svg>
+                                
+                        </div>
+                        <span class="text-gray-500">{{ category.name }}</span>
+                        <div class="flex justify-between items-center mt-2.5 mb-5">
+                            <div class="flex gap-2 items-center">
+                                <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8.597 3.2A1 1 0 0 0 7.04 4.289a3.49 3.49 0 0 1 .057 1.795 3.448 3.448 0 0 1-.84 1.575.999.999 0 0 0-.077.094c-.596.817-3.96 5.6-.941 10.762l.03.049a7.73 7.73 0 0 0 2.917 2.602 7.617 7.617 0 0 0 3.772.829 8.06 8.06 0 0 0 3.986-.975 8.185 8.185 0 0 0 3.04-2.864c1.301-2.2 1.184-4.556.588-6.441-.583-1.848-1.68-3.414-2.607-4.102a1 1 0 0 0-1.594.757c-.067 1.431-.363 2.551-.794 3.431-.222-2.407-1.127-4.196-2.224-5.524-1.147-1.39-2.564-2.3-3.323-2.788a8.487 8.487 0 0 1-.432-.287Z"/>
+                                </svg>
+                                <div class="text-gray-500">
+                                    <span class="">{{ item.chapters.count }} модуль</span>
+                                    |
+                                    <span class="">{{ item.lessons.count }} сабақ</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                                    <path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                </svg>
+                                <span class="text-gray-500">{{ item.view }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex -space-x-4 rtl:space-x-reverse">
+                                {% for user in item.user_subjects.all %}
+                                    <img 
+                                        class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" 
+                                        src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/user.png' %}{% endif %}" alt=""
+                                    >
+                                {% endfor %}
+                                <div class="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">
+                                    +{{ item.user_subjects.count }}
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'subject_detail' item.id %}" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                Толығырақ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock home_content %}

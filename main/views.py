@@ -1,5 +1,5 @@
 from django.utils import timezone
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -8,23 +8,43 @@ from main.models import Subject, Lesson, Chapter, Test, Question, Option
 from progress.models import UserSubject, UserLesson, Comment, UserTest, UserAnswer
 
 
-# Main view
+# main - Таныстыру беті
+# ----------------------------------------------------------------------------------------------------------------------
 def main(request):
     return render(request, 'index.html', {})
 
 
-# Home view
+# home - Платформаның басты бет
+# ----------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='/accounts/login/')
 def home(request):
     user = request.user
 
+    # Қолданушының типі 'student' болса
     if user.user_type == 'student':
-        all_subjects = Subject.objects.all()
+
+        """
+            all_subjects - Қолданушының барлық пәндері
+            started_subjects - Басталған қолданушының пәндері
+            finished_subjects - Аяқталған қолданушының пәндері
+        """
+        if request.method == 'POST':
+            user_subject_id = request.POST.get('delete_user_subject_id')
+            if user_subject_id:
+                user_subject = get_object_or_404(UserSubject, id=user_subject_id, user=user)
+                user_subject.delete()
+                return redirect('home')
+
+        user_subjects = UserSubject.objects.filter(user=user)
         started_subjects = UserSubject.objects.filter(user=user, completed=False)
         finished_subjects = UserSubject.objects.filter(user=user, completed=True)
+
+        # Қолданушының оқу деңгейін пайызбен шығару
         user_percent = 60
+
+        # Контекст деректер
         context = {
-            'all_subjects': all_subjects,
+            'user_subjects': user_subjects,
             'started_subjects': started_subjects,
             'finished_subjects': finished_subjects,
             'started_subjects_count': started_subjects.count(),
@@ -34,20 +54,43 @@ def home(request):
         }
         return render(request, 'home/index.html', context)
 
+    # Қолданушының типі 'teacher' болса
     elif user.user_type == 'teacher':
-        teacher_subjects = Subject.objects.filter(chapters__lessons__lessondocs__lesson__subject__user=user).distinct()
-        user_subjects = UserSubject.objects.filter(user=user)
+        """
+            Қолданушы автор болған жағдайда оның алдына барлық
+            деректер шығып отыру қажет
+        """
+        all_subjects = Subject.objects.all()
+        user_subjects = UserSubject.objects.all()
 
         context = {
-            'teacher_subjects': teacher_subjects,
+            'all_subjects': all_subjects,
             'user_subjects': user_subjects,
             'user_type': 'teacher'
         }
         return render(request, 'home/index.html', context)
 
 
+# subjects - Барлық пәндер орналасқан бет
+# ----------------------------------------------------------------------------------------------------------------------
+@login_required(login_url='/accounts/login/')
+def subjects(request):
+    user = request.user
 
-# Subject detail view
+    if user.user_type == 'student':
+        user_subjects = UserSubject.objects.filter(user=user)
+        all_subjects = Subject.objects.all()
+        context = {
+            'user_subjects': user_subjects,
+            'all_subjects': all_subjects
+        }
+        return render(request, 'home/subjects.html', context)
+    elif user.user_type == 'teacher':
+        raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
+
+
+# subject_detail - Пәннің беті
+# ----------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='/accounts/login/')
 def subject_detail(request, subject_pk):
     user = request.user
