@@ -1,0 +1,15 @@
+{% extends 'layouts/home.html' %}
+{% load static %}
+{% load custom_filters %}
+
+
+{% block title %}
+    {{ chapter.title }} - {{ user_subject.subject.title }} | Аралас оқыту
+{% endblock title %}
+
+
+{% block home_content %}
+<div class="w-full">
+    <h1 class="text-4xl font-bold">Hello world</h1>
+</div>
+{% endblock home_content %}

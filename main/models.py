@@ -14,8 +14,8 @@ class Subject(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = _('Курс')
-        verbose_name_plural = _('Курстар')
+        verbose_name = _('Пән')
+        verbose_name_plural = _('Пәндер')
         ordering = ('created_at', )
 
 
@@ -23,9 +23,10 @@ class Subject(models.Model):
 class Chapter(models.Model):
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE,
-        verbose_name=_('Курс'), related_name="chapters"
+        verbose_name=_('Пән'), related_name="chapters"
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
+    description = models.TextField(_('Анықтамасы'), blank=True, null=True)
     order = models.PositiveIntegerField(_('Order'))
 
     def __str__(self):
@@ -38,10 +39,6 @@ class Chapter(models.Model):
 
 # Lesson model
 class Lesson(models.Model):
-    LESSON_TYPE = (
-        ('theory', _('Теориялық сабақ')),
-        ('practice', _('Практикалық сабақ')),
-    )
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE,
         verbose_name=_('Курс'), related_name="lessons", null=True, blank=True
@@ -51,10 +48,8 @@ class Lesson(models.Model):
         verbose_name=_('Модуль'), related_name="lessons"
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
-    lesson_type = models.CharField(_('Сабақтың түрі'), choices=LESSON_TYPE, max_length=255)
-    description = models.TextField(_('Анықтамасы'), blank=True, null=True)
-    order = models.PositiveIntegerField(_('Order'), default=0)
     duration = models.PositiveSmallIntegerField(_('Сабақтың уақыты (мин)'), default=0)
+    order = models.PositiveIntegerField(_('Order'), default=0)
 
     def __str__(self):
         return f"{self.title} ({self.chapter.title})"
@@ -114,6 +109,40 @@ class VideoContent(models.Model):
         verbose_name_plural = _('Видео контенттер')
 
 
+# VideoContent model
+class FrameContent(models.Model):
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE,
+        verbose_name=_('Сабақ'), related_name="frame_contents"
+    )
+    url = models.URLField(_('URL iframe сілтеме'))
+
+    def __str__(self):
+        return f"Фрейм контент: {self.lesson.title}"
+
+    class Meta:
+        verbose_name = _('Фрейм контент')
+        verbose_name_plural = _('Фрейм контенттер')
+
+
+# Task content
+class Task(models.Model):
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE,
+        related_name='tasks', verbose_name=_('Сабақ')
+    )
+    title = models.CharField(_('Тақырыбы'), max_length=255)
+    description = models.TextField(_('Тапсырма сұрақтары'), blank=True, null=True)
+    total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
+
+    def __str__(self):
+        return f"{self.lesson.title}: {self.title}"
+
+    class Meta:
+        verbose_name = _('Тапсырма')
+        verbose_name_plural = _('Тапсырмалар')
+
+
 # Test content
 class Test(models.Model):
     lesson = models.ForeignKey(
@@ -125,7 +154,7 @@ class Test(models.Model):
     total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
 
     def __str__(self):
-        return f"{self.title} ({self.lesson.title})"
+        return f"{self.lesson.title}: {self.title}"
 
     class Meta:
         verbose_name = _('Тест')

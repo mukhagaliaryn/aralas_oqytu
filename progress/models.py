@@ -19,8 +19,8 @@ class UserSubject(models.Model):
 
     class Meta:
         unique_together = ('user', 'subject')
-        verbose_name = _('Қолданушының курсы')
-        verbose_name_plural = _('Қолданушының курстары')
+        verbose_name = _('Қолданушының пәні')
+        verbose_name_plural = _('Қолданушылардың пәндері')
 
     def __str__(self):
         return f"{self.user} - {self.subject.title}"
@@ -30,7 +30,7 @@ class UserSubject(models.Model):
 class UserLesson(models.Model):
     user_subject = models.ForeignKey(
         UserSubject, on_delete=models.CASCADE,
-        verbose_name=_('Қолданушының курсы'), related_name="user_lessons")
+        verbose_name=_('Қолданушының пәні'), related_name="user_lessons")
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
         verbose_name=_('Сабақ'), related_name="user_lessons"

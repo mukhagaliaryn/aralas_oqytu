@@ -68,8 +68,15 @@
                                 </div>
                             </div>
                             
-                            <a href="{% url 'subject_detail' item.id %}" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                Толығырақ
+                            <a 
+                                href="{% url 'subject_detail' item.id %}" 
+                                class="flex gap-2 items-center text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            >
+                                <span>Толығырақ</span>
+                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+                                </svg>
+                                  
                             </a>
                         </div>
                     </div>

@@ -8,26 +8,24 @@ from main.models import Subject, Lesson, Chapter, Test, Question, Option
 from progress.models import UserSubject, UserLesson, Comment, UserTest, UserAnswer
 
 
-# main - Таныстыру беті
+# main
 # ----------------------------------------------------------------------------------------------------------------------
 def main(request):
     return render(request, 'index.html', {})
 
 
-# home - Платформаның басты бет
+# home
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='/accounts/login/')
 def home(request):
     user = request.user
 
-    # Қолданушының типі 'student' болса
     if user.user_type == 'student':
+        user_subjects = UserSubject.objects.filter(user=user)
+        started_subjects = UserSubject.objects.filter(user=user, completed=False)
+        finished_subjects = UserSubject.objects.filter(user=user, completed=True)
+        user_percent = 60
 
-        """
-            all_subjects - Қолданушының барлық пәндері
-            started_subjects - Басталған қолданушының пәндері
-            finished_subjects - Аяқталған қолданушының пәндері
-        """
         if request.method == 'POST':
             user_subject_id = request.POST.get('delete_user_subject_id')
             if user_subject_id:
@@ -35,14 +33,6 @@ def home(request):
                 user_subject.delete()
                 return redirect('home')
 
-        user_subjects = UserSubject.objects.filter(user=user)
-        started_subjects = UserSubject.objects.filter(user=user, completed=False)
-        finished_subjects = UserSubject.objects.filter(user=user, completed=True)
-
-        # Қолданушының оқу деңгейін пайызбен шығару
-        user_percent = 60
-
-        # Контекст деректер
         context = {
             'user_subjects': user_subjects,
             'started_subjects': started_subjects,
@@ -54,12 +44,7 @@ def home(request):
         }
         return render(request, 'home/index.html', context)
 
-    # Қолданушының типі 'teacher' болса
     elif user.user_type == 'teacher':
-        """
-            Қолданушы автор болған жағдайда оның алдына барлық
-            деректер шығып отыру қажет
-        """
         all_subjects = Subject.objects.all()
         user_subjects = UserSubject.objects.all()
 
@@ -71,7 +56,7 @@ def home(request):
         return render(request, 'home/index.html', context)
 
 
-# subjects - Барлық пәндер орналасқан бет
+# subjects
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='/accounts/login/')
 def subjects(request):
@@ -84,23 +69,31 @@ def subjects(request):
             'user_subjects': user_subjects,
             'all_subjects': all_subjects
         }
-        return render(request, 'home/subjects.html', context)
+        return render(request, 'subjects/index.html', context)
     elif user.user_type == 'teacher':
         raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
 
 
-# subject_detail - Пәннің беті
+# subject_detail
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='/accounts/login/')
 def subject_detail(request, subject_pk):
     user = request.user
 
     if user.user_type == 'student':
-        all_subjects = Subject.objects.all()
+        user_subjects = UserSubject.objects.filter(user=user)
         subject = get_object_or_404(Subject, pk=subject_pk)
-
         subject.view += 1
         subject.save()
+
+        first_user_subject = UserSubject.objects.filter(user=request.user, subject=subject).order_by('id').first()
+        first_user_lesson = None
+        if first_user_subject:
+            first_user_lesson = UserLesson.objects.filter(
+                user_subject=first_user_subject
+            ).order_by('lesson__order').first()
+        my_subjects = request.user.user_subjects.all()
+        add_subjects = [user_subject.subject for user_subject in my_subjects]
 
         if request.method == 'POST':
             subject_id = request.POST.get('subject_id')
@@ -126,30 +119,76 @@ def subject_detail(request, subject_pk):
                 UserLesson.objects.bulk_create(user_lessons)
                 messages.success(request, f'"{subject.title}" пәнінің сабақтары қосылды!')
 
-            return redirect('subject_detail', subject_pk=subject.id)
-
-        first_user_subject = UserSubject.objects.filter(user=request.user, subject=subject).order_by('id').first()
-        first_user_lesson = None
-        if first_user_subject:
-            first_user_lesson = UserLesson.objects.filter(
-                user_subject=first_user_subject
-            ).order_by('lesson__order').first()
-        my_subjects = request.user.user_subjects.all()
-        add_subjects = [user_subject.subject for user_subject in my_subjects]
+            return redirect('home')
 
         context = {
-            'all_subjects': all_subjects,
+            'user_subjects': user_subjects,
             'subject': subject,
             'add_subjects': add_subjects,
             'first_user_subject': first_user_subject,
             'first_user_lesson': first_user_lesson
         }
-        return render(request, 'home/subject_detail.html', context)
+        return render(request, 'subjects/subject_detail.html', context)
 
     elif user.user_type == 'teacher':
-        pass
+        raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
 
 
+# chapter_detail
+# ----------------------------------------------------------------------------------------------------------------------
+@login_required(login_url='/accounts/login/')
+def chapter_detail(request, user_subject_pk, chapter_pk):
+    user = request.user
+    active_subject_id = None
+
+    if user.user_type == 'student':
+        user_subjects = UserSubject.objects.filter(user=user)
+        for user_subject in user_subjects:
+            for chapter in user_subject.subject.chapters.all():
+                chapter_url = f"/subject/{user_subject.id}/chapter/{chapter.id}/"
+                if request.path == chapter_url:
+                    active_subject_id = user_subject.subject.id
+
+        user_subject = get_object_or_404(UserSubject, pk=user_subject_pk)
+        chapter = get_object_or_404(Chapter, pk=chapter_pk)
+        user_lessons = user_subject.user_lessons.filter(lesson__chapter=chapter)
+
+        context = {
+            'user_subjects': user_subjects,
+            'active_subject_id': active_subject_id,
+            'user_subject': user_subject,
+            'chapter': chapter,
+            'user_lessons': user_lessons
+        }
+        return render(request, 'subjects/chapter_detail.html', context)
+
+    elif user.user_type == 'teacher':
+        raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
+
+
+
+# UserCourse detail view
+@login_required(login_url='/accounts/login/')
+def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
+    user = request.user
+
+    if user.user_type == 'student':
+        user_subjects = UserSubject.objects.filter(user=user)
+
+        user_subject = get_object_or_404(UserSubject, pk=user_subject_pk)
+        chapter = get_object_or_404(Chapter, pk=chapter_pk)
+        user_lesson = get_object_or_404(UserLesson, pk=user_lesson_pk)
+
+        context = {
+            'user_subjects': user_subjects,
+            'user_subject': user_subject,
+            'chapter': chapter,
+            'user_lesson': user_lesson
+        }
+        return render(request, 'subjects/lesson/index.html', context)
+
+    elif user.user_type == 'teacher':
+        raise Http404('Оқытушыларға бұл бет қолжетімді емес.')
 
 
 # # UserCourse detail view

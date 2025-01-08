@@ -1,10 +1,12 @@
 from django.contrib import admin
-from .models import Subject, Chapter, Lesson, TextContent, VideoContent, LessonDocs, Test, Question, Option
+from .models import Subject, Chapter, Lesson, TextContent, VideoContent, LessonDocs, Test, Question, Option, \
+    FrameContent, Task
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
 
 
 # Subject admin
-class ChapterTab(admin.TabularInline):
+# ----------------------------------------------------------------------------------------------------------------------
+class ChapterTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Chapter
     extra = 1
 
@@ -16,7 +18,8 @@ class SubjectAdmin(SummernoteModelAdmin):
 
 
 # Chapter admin
-class LessonTab(SummernoteModelAdminMixin, admin.StackedInline):
+# ----------------------------------------------------------------------------------------------------------------------
+class LessonTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Lesson
     extra = 1
 
@@ -29,6 +32,7 @@ class ChapterAdmin(SummernoteModelAdmin):
 
 
 # Lesson admin
+# ----------------------------------------------------------------------------------------------------------------------
 class TextContentTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = TextContent
     extra = 0
@@ -38,21 +42,30 @@ class VideoContentTab(admin.TabularInline):
     extra = 0
 
 
+class FrameContentTab(admin.TabularInline):
+    model = FrameContent
+    extra = 0
+
+class TaskTab(admin.TabularInline):
+    model = Task
+    extra = 0
+
+
 class FileDocTab(admin.TabularInline):
     model = LessonDocs
     extra = 0
 
 
-
 @admin.register(Lesson)
 class LessonAdmin(SummernoteModelAdmin):
-    list_display = ('title', 'chapter', 'lesson_type', 'order')
-    list_filter = ('subject', 'chapter', 'lesson_type', )
+    list_display = ('title', 'chapter', 'order')
+    list_filter = ('subject', 'chapter', )
     ordering = ('chapter', 'order')
-    inlines = (TextContentTab, VideoContentTab, FileDocTab, )
+    inlines = (FileDocTab, TextContentTab, VideoContentTab, FrameContentTab, TaskTab, )
 
 
-# Test
+# Test admin
+# ----------------------------------------------------------------------------------------------------------------------
 class QuestionTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Question
     extra = 0
