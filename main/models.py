@@ -82,6 +82,7 @@ class TextContent(models.Model):
         Lesson, on_delete=models.CASCADE,
         verbose_name=_('Сабақ'), related_name="text_contents"
     )
+    title = models.CharField(_('Тақырыбы'), max_length=255, blank=True, null=True)
     content = models.TextField(_('Мәтін'))
 
     def __str__(self):
@@ -115,7 +116,7 @@ class FrameContent(models.Model):
         Lesson, on_delete=models.CASCADE,
         verbose_name=_('Сабақ'), related_name="frame_contents"
     )
-    url = models.URLField(_('URL iframe сілтеме'))
+    url = models.TextField(_('URL iframe сілтеме'))
 
     def __str__(self):
         return f"Фрейм контент: {self.lesson.title}"

@@ -42,7 +42,7 @@ class VideoContentTab(admin.TabularInline):
     extra = 0
 
 
-class FrameContentTab(admin.TabularInline):
+class FrameContentTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = FrameContent
     extra = 0
 

@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import User
-from main.models import Subject, Lesson, Test, Option
+from main.models import Subject, Lesson, Test, Option, Task
 from django.utils.translation import gettext_lazy as _
 
 
@@ -48,6 +48,35 @@ class UserLesson(models.Model):
         return f"{self.user_subject.user} - {self.lesson.title} - {'Орындалды' if self.completed else 'Процессте'}"
 
 
+# UserTask model
+class UseTask(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='user_tasks', verbose_name=_('Қолданушы')
+    )
+    user_lesson = models.ForeignKey(
+        UserLesson, on_delete=models.CASCADE, related_name='user_tasks',
+        verbose_name=_('Қолданушының сабағы')
+    )
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE,
+        related_name='user_tasks', verbose_name=_('Тапсырма')
+    )
+    submission = models.FileField(_('Тапсырма'), upload_to='main/subject/user/tasks/')
+    grade = models.DecimalField(_('Балл'), max_digits=5, decimal_places=2, default=0)
+    feedback = models.TextField(_('Пікір'), blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    is_done = models.BooleanField(_('Орындалды'), default=False)
+
+    def __str__(self):
+        return f"{self.user} {self.task.title} тақырыбындағы тапсырма"
+
+
+    class Meta:
+        verbose_name = _('Қолданушының тапсырмасы')
+        verbose_name_plural = _('Қолданушылардың тапсырмалары')
+
+
 # 🧑‍🎓 UserTest model
 class UserTest(models.Model):
     user = models.ForeignKey(
@@ -60,7 +89,6 @@ class UserTest(models.Model):
     )
     score = models.PositiveIntegerField(_('Балл'), default=0)
     completed = models.BooleanField(_('Аяқталды'), default=False)
-    submitted_at = models.DateTimeField(_('Жіберілген уақыт'), auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.test.title} ({self.score} ұпай)"

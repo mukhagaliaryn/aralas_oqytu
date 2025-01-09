@@ -167,23 +167,32 @@ def chapter_detail(request, user_subject_pk, chapter_pk):
 
 
 
-# UserCourse detail view
+# lesson_detail view
 @login_required(login_url='/accounts/login/')
 def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
     user = request.user
 
     if user.user_type == 'student':
-        user_subjects = UserSubject.objects.filter(user=user)
-
         user_subject = get_object_or_404(UserSubject, pk=user_subject_pk)
         chapter = get_object_or_404(Chapter, pk=chapter_pk)
         user_lesson = get_object_or_404(UserLesson, pk=user_lesson_pk)
+        chapters = Chapter.objects.filter(subject=user_subject.subject)
+        chapters_with_lessons = []
+        for chapter in chapters:
+            lessons = UserLesson.objects.filter(
+                user_subject=user_subject,
+                lesson__chapter=chapter
+            ).order_by('lesson__order')
+            chapters_with_lessons.append({
+                'chapter': chapter,
+                'user_lessons': lessons
+            })
 
         context = {
-            'user_subjects': user_subjects,
             'user_subject': user_subject,
             'chapter': chapter,
-            'user_lesson': user_lesson
+            'user_lesson': user_lesson,
+            'chapters_with_lessons': chapters_with_lessons
         }
         return render(request, 'subjects/lesson/index.html', context)
 
