@@ -10,62 +10,285 @@
 
 {% block course_content %}
 <div class="w-full overflow-hidden bg-white" style="height: calc(100vh - 85px);">
-    <div class="swiper lessonSwiper swiper-h w-full h-full">
-        <!-- Theory block -->
-        <div class="swiper-wrapper">
-            <!-- Text contents -->
-            {% if user_lesson.lesson.text_contents.all|length > 0 %}
-                <div class="swiper-slide grid overflow-auto">
-                    {% for item in user_lesson.lesson.text_contents.all %}
-                        <div class="w-full h-full p-8 flex justify-center">
-                            <div class="max-w-screen-xl w-full grid gap-4">
-                                <h1 class="text-2xl font-semibold text-center">{{ item.title }}</h1>
-                                <div class="text-gray-500 text-justify">
-                                    {{ item.content|safe }}
+    {% if not user_lesson.completed %}
+        <div class="swiper lessonSwiper swiper-h w-full h-full">
+            <!-- Theory block -->
+            <div class="swiper-wrapper">
+                <!-- Text contents -->
+                {% if text_contents %}
+                    <div class="swiper-slide grid overflow-auto">
+                        {% for item in text_contents %}
+                            <div class="w-full h-full p-8 flex justify-center">
+                                <div class="max-w-screen-xl w-full grid gap-4">
+                                    <div class="flex gap-2 items-center">
+                                        <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                            <path fill-rule="evenodd" d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7ZM8 16a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1-5a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <h1 class="text-2xl font-semibold text-center">{{ item.title }}</h1>
+                                    </div>
+                                    <div class="text-gray-500 text-justify">
+                                        {{ item.content|safe }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <!-- Video contents -->
-            {% if user_lesson.lesson.video_contents.all|length > 0 %}
-                <div class="swiper-slide overflow-auto">
-                    {% for item in user_lesson.lesson.video_contents.all %}
-                        <div class="relative h-full">
-                            <iframe 
-                                width="100%" 
-                                height="100%" 
-                                src="https://www.youtube.com/embed/{{ item.url|youtube_id }}" 
-                                title="YouTube video player" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen
-                                class="cursor-pointer"
-                            >
-                            </iframe>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                <!-- Video contents -->
+                {% if video_contents %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for item in video_contents %}
+                            <div class="relative h-full">
+                                <iframe 
+                                    width="100%" 
+                                    height="100%" 
+                                    src="https://www.youtube.com/embed/{{ item.url|youtube_id }}" 
+                                    title="YouTube video player" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen
+                                    class="cursor-pointer"
+                                >
+                                </iframe>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <!-- Frame contents -->
-            {% if user_lesson.lesson.frame_contents.all|length > 0 %}
-                <div class="swiper-slide">
-                    {% for item in user_lesson.lesson.frame_contents.all %}
-                        <div class="relative h-full">
-                            {{ item.url|safe }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                <!-- Frame contents -->
+                {% if frame_contents %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for item in frame_contents %}
+                            <div class="relative h-full">
+                                {{ item.url|safe }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                
+                <!-- Tasks -->
+                {% if user_lesson.lesson.tasks.all %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for task in user_lesson.lesson.tasks.all %}
+                            <div class="relative w-full h-full">
+                                {% if not user_tasks %}
+                                    <div class="grid gap-8 max-w-screen-md w-full mx-auto py-8">
+                                        <div class="grid gap-4 text-center">
+                                            <div class="flex gap-2 items-center">
+                                                <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14H4m6.5 3L8 20m5.5-3 2.5 3M4.88889 17H19.1111c.4909 0 .8889-.4157.8889-.9286V4.92857C20 4.41574 19.602 4 19.1111 4H4.88889C4.39797 4 4 4.41574 4 4.92857V16.0714c0 .5129.39797.9286.88889.9286ZM13 14v-3h4v3h-4Z"/>
+                                                </svg>
+                                                <h1 class="text-2xl font-semibold">{{ task.title }}</h1>
+                                            </div>
+                                            <div class="text-gray-500 text-justify">
+                                                {{ task.description|safe }}
+                                            </div>
+                                        </div>
+
+                                        <form 
+                                            method="post" enctype="multipart/form-data"
+                                            class="grid gap-2"    
+                                        >
+                                            {% csrf_token %}
+                                            <div class="grid gap-2">
+                                                <input type="hidden" name="action" value="submit_task">
+                                                <input type="hidden" name="task_id" value="{{ task.id }}">
+                                                <input 
+                                                    id="file_input"
+                                                    name="submission" 
+                                                    type="file" required
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                                >
+                                                <textarea 
+                                                    id="message" 
+                                                    rows="4" 
+                                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" 
+                                                    placeholder="Өз жауабыңызды осында жазыңыз..."
+                                                    name="feedback"
+                                                    required
+                                                >
+                                                </textarea>
+                                            </div>
+                                            
+                                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
+                                                Тапсырманы жіберу
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="h-full flex justify-center items-center">
+                                        <div class="max-w-screen-md text-center w-full grid gap-2">
+                                            <svg class="w-24 h-24 text-blue-600 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5"/>
+                                            </svg>
+                                            <h1 class="text-2xl font-semibold text-center">Тапсырма жіберілді!</h1>
+                                            <div class="text-gray-500">
+                                                Оқытушының бағалауын күтіңіз!
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Tests -->
+                {% if user_lesson.lesson.tests.all %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for test in user_lesson.lesson.tests.all %}
+                            <div class="relative w-full h-full">
+                                {% if not user_tests %}
+                                    <div class="grid gap-4 max-w-screen-md w-full mx-auto py-8">
+                                        <div class="grid gap-4 pb-4 border-b">
+                                            <div class="flex gap-2 items-center">
+                                                <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 9h6m-6 3h6m-6 3h6M6.996 9h.01m-.01 3h.01m-.01 3h.01M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+                                                </svg>
+                                                <h1 class="text-2xl font-semibold">{{ test.title }}</h1>
+                                            </div>
+                                            <div class="text-gray-500">
+                                                {{ test.description|safe }}
+                                            </div>
+                                        </div>
+
+                                        <form method="POST" class="grid gap-4">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="submit_test">
+                                            <input type="hidden" name="test_id" value="{{ test.id }}">
+                                            {% for question in test.questions.all %}
+                                                <div class="py-4 border-b grid gap-2">
+                                                    <h4 class="text-lg font-semibold">{{ forloop.counter }}.{{ question.text|safe }}</h4>
+                                                    {% for option in question.options.all %}
+                                                        <div class="flex items-center">
+                                                            <div class="flex items-center gap-2 px-2 w-full rounded-lg hover:bg-gray-100">
+                                                                <input 
+                                                                    id="option_{{ option.id }}" 
+                                                                    type="radio" 
+                                                                    value="{{ option.id }}" 
+                                                                    name="question_{{ question.id }}" 
+                                                                    class="w-6 h-6 cursor-pointer text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                                >
+                                                                <label for="option_{{ option.id }}" class="block w-full text-gray-900 p-2 cursor-pointer">
+                                                                    {{ option.text|safe }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endfor %}
+                                            
+                                            <button 
+                                                type="submit" 
+                                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                                            >
+                                                Тестті аяқтау
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="h-full flex justify-center items-center">
+                                        <div class="max-w-screen-md text-center w-full grid gap-2">
+                                            <svg class="w-24 h-24 text-blue-600 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5"/>
+                                            </svg>
+                                            <h1 class="text-2xl font-semibold text-center">Тест тапсырылды!</h1>
+                                            <div class="text-gray-500">
+                                                Тесттің нәтижесін сабақ аяқталғанн соң көре аласыз!
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
         </div>
+    {% else %}
         
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-    </div>
+        <div class="swiper lessonSwiper swiper-h w-full h-full">
+            <div class="swiper-wrapper">
+                <!-- Finished -->
+                <div class="swiper-slide grid overflow-auto">
+                    <div class="w-full h-full p-8 flex justify-center items-center">
+                        <div class="max-w-screen-md text-center w-full grid gap-2">
+                            <div 
+                                class="radial-progress text-green-600 bg-white mx-auto font-semibold text-xl" 
+                                style="--value: {{ user_lesson.lesson_score }}; --size:8rem;" 
+                                role="progressbar"
+                            >
+                                {{ user_lesson.lesson_score }}%
+                            </div>
+                            <h1 class="text-2xl font-semibold text-center">Сабақ аяқталды</h1>
+                            <div class="text-gray-500">
+                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+                                Ex error reprehenderit quasi suscipit facere totam veritatis, eum dolorum nihil delectus!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text contents -->
+                {% if text_contents %}
+                    <div class="swiper-slide grid overflow-auto">
+                        {% for item in text_contents %}
+                            <div class="w-full h-full p-8 flex justify-center">
+                                <div class="max-w-screen-xl w-full grid gap-4">
+                                    <h1 class="text-2xl font-semibold text-center">{{ item.title }}</h1>
+                                    <div class="text-gray-500 text-justify">
+                                        {{ item.content|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Video contents -->
+                {% if video_contents %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for item in video_contents %}
+                            <div class="relative h-full">
+                                <iframe 
+                                    width="100%" 
+                                    height="100%" 
+                                    src="https://www.youtube.com/embed/{{ item.url|youtube_id }}" 
+                                    title="YouTube video player" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen
+                                    class="cursor-pointer"
+                                >
+                                </iframe>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Frame contents -->
+                {% if frame_contents %}
+                    <div class="swiper-slide">
+                        {% for item in frame_contents %}
+                            <div class="relative h-full">
+                                {{ item.url|safe }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    {% endif %}
     
     <!-- Initialize Swiper -->
     <script>

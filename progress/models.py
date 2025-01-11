@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import User
-from main.models import Subject, Lesson, Test, Option, Task
+from main.models import Subject, Lesson, Test, Option, Task, Question
 from django.utils.translation import gettext_lazy as _
 
 
@@ -37,6 +37,7 @@ class UserLesson(models.Model):
     )
     lesson_score = models.DecimalField(_('Сабақтың баллы'), max_digits=5, decimal_places=2, default=0)
     completed = models.BooleanField(_('Орындалды'), default=False)
+    is_open = models.BooleanField(_('Ашық сабақ'), default=False)
     completed_at = models.DateTimeField(_('Орындалған уақыты'), blank=True, null=True)
 
     class Meta:
@@ -63,7 +64,7 @@ class UseTask(models.Model):
         related_name='user_tasks', verbose_name=_('Тапсырма')
     )
     submission = models.FileField(_('Тапсырма'), upload_to='main/subject/user/tasks/')
-    grade = models.DecimalField(_('Балл'), max_digits=5, decimal_places=2, default=0)
+    grade = models.PositiveSmallIntegerField(_('Балл'), default=0)
     feedback = models.TextField(_('Пікір'), blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_done = models.BooleanField(_('Орындалды'), default=False)
@@ -82,6 +83,10 @@ class UserTest(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='user_tests', verbose_name=_('Қолданушы')
+    )
+    user_lesson = models.ForeignKey(
+        UserLesson, on_delete=models.CASCADE, related_name='user_tests',
+        verbose_name=_('Қолданушының сабағы')
     )
     test = models.ForeignKey(
         Test, on_delete=models.CASCADE,
@@ -104,47 +109,11 @@ class UserAnswer(models.Model):
         UserTest, on_delete=models.CASCADE,
         related_name='answers', verbose_name=_('Қолданушы тесті')
     )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name=_('Сұрақ'), blank=True, null=True)
     answers = models.ManyToManyField(Option, verbose_name=_('Жауаптар'))
     score = models.PositiveSmallIntegerField(_('Балл'), default=0)
-
-    def calculate_score(self):
-        correct_answers = self.question.options.filter(is_correct=True)
-        selected_correct_answers = self.answers.filter(is_correct=True)
-
-        if set(correct_answers) == set(selected_correct_answers):
-            self.score = self.question.test.total_score // self.question.test.questions.count()
-        else:
-            self.score = 0
-
-        self.save()
-
-    def __str__(self):
-        return f"{self.user_test.user.username} - {self.question.text} ({self.score} ұпай)"
 
 
     class Meta:
         verbose_name = _('Қолданушының жауабы')
         verbose_name_plural = _('Қолданушылардың жауаптары')
-
-
-# Comment model
-class Comment(models.Model):
-    lesson = models.ForeignKey(
-        Lesson, on_delete=models.CASCADE,
-        verbose_name=_('Сабақ'), related_name='comments'
-    )
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
-        verbose_name=_('Авторы'), related_name='comments'
-    )
-    content = models.TextField(_('Пікір'))
-    score = models.PositiveSmallIntegerField(_('Балл'), default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-    def __str__(self):
-        return f"{self.author} {self.lesson.title} сабағына берген пікірі"
-
-    class Meta:
-        verbose_name = _('Қолданушы пікірі')
-        verbose_name_plural = _('Қолданушылар пікірлері')

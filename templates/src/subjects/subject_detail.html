@@ -73,7 +73,7 @@
                             <input type="hidden" name="subject_id" value="{{ subject.id }}">
                             <button 
                                 type="submit"
-                                class="flex items-center gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             >
                                 <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
@@ -123,9 +123,9 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h1 class="font-medium md:text-lg">{{ chapter.order }}.{{ lesson.order }}: {{ lesson.title }}</h1>
+                                            <h1 class="font-medium md:text-lg">{{ chapter.order }}.{{ forloop.counter }}: {{ lesson.title }}</h1>
                                             <div class="flex gap-2 text-gray-500 text-sm">
-                                                {% if lesson.text_contents.count == 0 %}
+                                                {% if lesson.text_contents.count %}
                                                     <div class="flex gap-1 items-center">
                                                         <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
@@ -133,9 +133,9 @@
                                                         <span>
                                                             Материалдар
                                                         </span>
-                                                    </div>
-                                                {% endif %}|
-                                                {% if lesson.video_contents.count == 0 %}
+                                                    </div>|
+                                                {% endif %}
+                                                {% if lesson.video_contents.count %}
                                                     <div class="flex gap-1 items-center">
                                                         <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Zm0 0-4 4m5 0H4m1 0 4-4m1 4 4-4m-4 7v6l4-3-4-3Z"/>
@@ -143,9 +143,9 @@
                                                         <span>
                                                             Бейнелер
                                                         </span>
-                                                    </div>
-                                                {% endif %}|
-                                                {% if lesson.frame_contents.count == 0 %}
+                                                    </div>|
+                                                {% endif %}
+                                                {% if lesson.frame_contents.count %}
                                                     <div class="flex gap-1 items-center">
                                                         <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.213 9.787a3.391 3.391 0 0 0-4.795 0l-3.425 3.426a3.39 3.39 0 0 0 4.795 4.794l.321-.304m-.321-4.49a3.39 3.39 0 0 0 4.795 0l3.424-3.426a3.39 3.39 0 0 0-4.794-4.795l-1.028.961"/>
@@ -153,9 +153,9 @@
                                                         <span>
                                                             Интерактивтер
                                                         </span>
-                                                    </div>
-                                                {% endif %}|
-                                                {% if lesson.tasks.count == 0 %}
+                                                    </div>|
+                                                {% endif %}
+                                                {% if lesson.tasks.count %}
                                                     <div class="flex gap-1 items-center">
                                                         <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
@@ -163,9 +163,9 @@
                                                         <span>
                                                             Бақылау
                                                         </span>
-                                                    </div>
-                                                {% endif %}|
-                                                {% if lesson.tests.count == 0 %}
+                                                    </div>|
+                                                {% endif %}
+                                                {% if lesson.tests.count %}
                                                     <div class="flex gap-1 items-center">
                                                         <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>

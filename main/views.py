@@ -2,10 +2,8 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
-from accounts.models import User
-from main.models import Subject, Lesson, Chapter, Test, Question, Option
-from progress.models import UserSubject, UserLesson, Comment, UserTest, UserAnswer
+from main.models import Subject, Lesson, Chapter, Test, Question, Option, TextContent, VideoContent, FrameContent, Task
+from progress.models import UserSubject, UserLesson, UserTest, UserAnswer, UseTask
 
 
 # main
@@ -24,7 +22,8 @@ def home(request):
         user_subjects = UserSubject.objects.filter(user=user)
         started_subjects = UserSubject.objects.filter(user=user, completed=False)
         finished_subjects = UserSubject.objects.filter(user=user, completed=True)
-        user_percent = 60
+        user_percent = 0
+
 
         if request.method == 'POST':
             user_subject_id = request.POST.get('delete_user_subject_id')
@@ -45,15 +44,7 @@ def home(request):
         return render(request, 'home/index.html', context)
 
     elif user.user_type == 'teacher':
-        all_subjects = Subject.objects.all()
-        user_subjects = UserSubject.objects.all()
-
-        context = {
-            'all_subjects': all_subjects,
-            'user_subjects': user_subjects,
-            'user_type': 'teacher'
-        }
-        return render(request, 'home/index.html', context)
+        raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
 
 
 # subjects
@@ -152,6 +143,10 @@ def chapter_detail(request, user_subject_pk, chapter_pk):
         user_subject = get_object_or_404(UserSubject, pk=user_subject_pk)
         chapter = get_object_or_404(Chapter, pk=chapter_pk)
         user_lessons = user_subject.user_lessons.filter(lesson__chapter=chapter)
+        if user_lessons:
+            first_user_lesson = user_lessons.first()
+            first_user_lesson.is_open = True
+            first_user_lesson.save()
 
         context = {
             'user_subjects': user_subjects,
@@ -178,155 +173,122 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
         user_lesson = get_object_or_404(UserLesson, pk=user_lesson_pk)
         chapters = Chapter.objects.filter(subject=user_subject.subject)
         chapters_with_lessons = []
-        for chapter in chapters:
+        for item in chapters:
             lessons = UserLesson.objects.filter(
                 user_subject=user_subject,
-                lesson__chapter=chapter
+                lesson__chapter=item
             ).order_by('lesson__order')
             chapters_with_lessons.append({
-                'chapter': chapter,
+                'chapter': item,
                 'user_lessons': lessons
             })
+
+        # lesson contents
+        text_contents = TextContent.objects.filter(lesson=user_lesson.lesson)
+        video_contents = VideoContent.objects.filter(lesson=user_lesson.lesson)
+        frame_contents = FrameContent.objects.filter(lesson=user_lesson.lesson)
+        user_tasks = UseTask.objects.filter(user_lesson=user_lesson, user=user)
+        user_tests = UserTest.objects.filter(user_lesson=user_lesson, user=user)
+
+        if request.method == 'POST':
+            action = request.POST.get('action')
+
+            if action == 'submit_task':
+                task_id = request.POST.get('task_id')
+                task = get_object_or_404(Task, pk=task_id)
+                submission = request.FILES.get('submission')
+                feedback = request.POST.get('feedback')
+
+                user_task, created = UseTask.objects.get_or_create(
+                    user=user,
+                    user_lesson=user_lesson,
+                    task=task
+                )
+                if submission:
+                    user_task.submission = submission
+                    user_task.feedback = feedback
+                    user_task.save()
+                    messages.success(request, f"'{user_task.task.title}' тапсырмасы сәтті жіберілді!")
+                else:
+                    messages.error(request, "Тапсырманы жіберу үшін құжатты тіркеу қажет!")
+
+            elif action == 'submit_test':
+                test_id = request.POST.get('test_id')
+                test = get_object_or_404(Test, pk=test_id)
+                user_test, created = UserTest.objects.get_or_create(
+                    user=user,
+                    user_lesson=user_lesson,
+                    test=test
+                )
+
+                total_test_score = 0
+                for question in Question.objects.filter(test=test):
+                    selected_option_ids = request.POST.getlist(f'question_{question.id}')
+                    user_answer, created = UserAnswer.objects.get_or_create(
+                        user_test=user_test,
+                        question=question
+                    )
+                    user_answer.answers.set(Option.objects.filter(id__in=selected_option_ids))
+                    user_answer.score = sum(option.score for option in user_answer.answers.all())
+                    user_answer.save()
+
+                    total_test_score += user_answer.score
+
+                user_test.score = (total_test_score * 100)/user_test.test.total_score
+                user_test.completed = True
+                user_test.save()
+                messages.success(request, f"Тест аяқталды! Нәтижені сабақ аяқталғаннан соң көресіз!")
+
+            elif action == 'complete_lesson':
+                total_task_score = sum(user_task.grade for user_task in user_tasks.filter(is_done=True))
+                task_count = user_tasks.filter(is_done=True).count()
+                avg_task_score = (total_task_score / task_count) if task_count > 0 else 0
+
+                total_test_score = sum(user_test.score for user_test in user_tests.filter(completed=True))
+                test_count = user_tests.filter(completed=True).count()
+                avg_test_score = (total_test_score / test_count) if test_count > 0 else 0
+
+                user_lesson.lesson_score = (avg_task_score + avg_test_score) / 2
+                user_lesson.completed = True
+                user_lesson.completed_at = timezone.now()
+                user_lesson.save()
+
+                next_lesson = UserLesson.objects.filter(
+                    user_subject=user_subject,
+                    lesson__order=user_lesson.lesson.order + 1
+                ).first()
+
+                if next_lesson:
+                    next_lesson.is_open = True
+                    next_lesson.save()
+
+                completed_lessons = UserLesson.objects.filter(user_subject=user_subject, completed=True)
+                total_score = sum(lesson.lesson_score for lesson in completed_lessons)
+                total_lessons = UserLesson.objects.filter(user_subject=user_subject).count()
+                user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
+                user_subject.save()
+                messages.success(request, 'Сабақ аяқталды!')
+
+        next_lesson = UserLesson.objects.filter(
+            user_subject=user_subject,
+            lesson__order=user_lesson.lesson.order + 1
+        ).first()
 
         context = {
             'user_subject': user_subject,
             'chapter': chapter,
             'user_lesson': user_lesson,
-            'chapters_with_lessons': chapters_with_lessons
+            'chapters_with_lessons': chapters_with_lessons,
+
+            # lesson contents
+            'text_contents': text_contents,
+            'video_contents': video_contents,
+            'frame_contents': frame_contents,
+            'user_tasks': user_tasks,
+            'user_tests': user_tests,
+            'next_lesson': next_lesson
         }
         return render(request, 'subjects/lesson/index.html', context)
 
     elif user.user_type == 'teacher':
         raise Http404('Оқытушыларға бұл бет қолжетімді емес.')
-
-
-# # UserCourse detail view
-# @login_required(login_url='/accounts/login/')
-# def lesson_detail(request, user_subject_pk, user_lesson_pk):
-#     user_subject = get_object_or_404(UserSubject, pk=user_subject_pk, user=request.user)
-#     user_lesson = get_object_or_404(UserLesson, pk=user_lesson_pk, user_subject=user_subject)
-#     chapters = Chapter.objects.filter(subject=user_subject.subject).order_by('order')
-#     comments = Comment.objects.filter(lesson=user_lesson.lesson).order_by('created_at')
-#     homeworks = Homework.objects.filter(lesson=user_lesson.lesson)
-#     user_homeworks_done = UserHomework.objects.filter(student=request.user, homework__in=homeworks, is_done=True)
-#     send_homeworks = [user_homework.homework for user_homework in request.user.homeworks.filter(homework__in=homeworks)]
-#     tests = Test.objects.filter(lesson=user_lesson.lesson)
-#
-#     if request.method == 'POST':
-#         action = request.POST.get('action')
-#
-#         # 1️⃣ Пікір жіберу
-#         if action == 'submit_comment':
-#             content = request.POST.get('content')
-#             rating = request.POST.get('score')
-#             if not content:
-#                 messages.error(request, 'Пікір мәтіні бос болмауы керек!')
-#             elif not rating or not rating.isdigit() or int(rating) not in range(1, 6):
-#                 messages.error(request, 'Баға 1-ден 5-ке дейін болуы керек!')
-#             else:
-#                 Comment.objects.create(
-#                     author=request.user,
-#                     lesson=user_lesson.lesson,
-#                     content=content,
-#                     score=int(rating)
-#                 )
-#                 messages.success(request, 'Пікіріңіз сәтті жіберілді!')
-#
-#         # 2️⃣ Үй тапсырмасын жіберу
-#         elif action == 'submit_homework':
-#             homework_id = request.POST.get('homework_id')
-#             homework = get_object_or_404(Homework, pk=homework_id)
-#             submission = request.FILES.get('submission')
-#
-#             user_homework, created = UserHomework.objects.get_or_create(
-#                 student=request.user,
-#                 user_lesson=user_lesson,
-#                 homework=homework
-#             )
-#             if submission:
-#                 user_homework.submission = submission
-#                 user_homework.save()
-#                 messages.success(request, f"Үй жұмысы '{homework.title}' сәтті жіберілді!")
-#             else:
-#                 messages.error(request, "Тапсырманы жіберу үшін құжатты тіркеу қажет!")
-#
-#         # 3️⃣ Тестті аяқтау және бағалау
-#         elif action == 'submit_test':
-#             user_test, created = UserTest.objects.get_or_create(
-#                 user=request.user,
-#                 test__lesson=user_lesson.lesson
-#             )
-#
-#             total_test_score = 0
-#             for question in Question.objects.filter(test__lesson=user_lesson.lesson):
-#                 selected_option_ids = request.POST.getlist(f'question_{question.id}')
-#                 user_answer, created = UserAnswer.objects.get_or_create(
-#                     user_test=user_test,
-#                     question=question
-#                 )
-#                 user_answer.answers.set(Option.objects.filter(id__in=selected_option_ids))
-#                 user_answer.score = sum(option.is_correct for option in user_answer.answers.all()) * 10
-#                 user_answer.save()
-#                 total_test_score += user_answer.score
-#
-#             user_test.score = total_test_score
-#             user_test.completed = True
-#             user_test.save()
-#
-#             messages.success(request, f"Тест аяқталды! Сіздің ұпайыңыз: {user_test.score}")
-#
-#         # 4️⃣ Сабақты аяқтау
-#         elif action == 'complete_lesson':
-#             # Үй жұмысының орташа баллы
-#             total_homework_score = sum(uh.grade for uh in user_homeworks_done)
-#             homework_count = user_homeworks_done.count()
-#             avg_homework_score = (total_homework_score / homework_count) if homework_count > 0 else 0
-#
-#             # Тесттің орташа баллы
-#             user_test = UserTest.objects.filter(user=request.user, test__lesson=user_lesson.lesson).first()
-#             test_score = user_test.score if user_test else 0
-#
-#             # Жалпы ортақ балл
-#             user_lesson.lesson_score = (avg_homework_score + test_score) / 2
-#             user_lesson.completed = True
-#             user_lesson.completed_at = timezone.now()
-#             user_lesson.save()
-#
-#             # Жалпы пәннің ортақ пайызы
-#             completed_lessons = UserLesson.objects.filter(user_subject=user_subject, completed=True)
-#             total_score = sum(lesson.lesson_score for lesson in completed_lessons)
-#             total_lessons = UserLesson.objects.filter(user_subject=user_subject).count()
-#
-#             user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
-#             user_subject.save()
-#
-#             messages.success(request, 'Сабақ аяқталды!')
-#
-#     chapters_with_lessons = []
-#     for chapter in chapters:
-#         lessons = UserLesson.objects.filter(
-#             user_subject=user_subject,
-#             lesson__chapter=chapter
-#         ).order_by('lesson__order')
-#         chapters_with_lessons.append({
-#             'chapter': chapter,
-#             'user_lessons': lessons
-#         })
-#
-#     context = {
-#         'user_lesson': user_lesson,
-#         'user_subject': user_subject,
-#         'chapters_with_lessons': chapters_with_lessons,
-#         'comments': comments,
-#         'send_homeworks': send_homeworks,
-#         'homeworks': homeworks,
-#         'user_homeworks_done': user_homeworks_done,
-#         'tests': tests
-#     }
-#     return render(request, 'home/lesson_detail.html', context)
-#
-#
-
-
-
-

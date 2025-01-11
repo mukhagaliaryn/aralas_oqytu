@@ -52,7 +52,7 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField(_('Order'), default=0)
 
     def __str__(self):
-        return f"{self.title} ({self.chapter.title})"
+        return f"{self.chapter.pk}-{self.chapter.title}: {self.title}"
 
     class Meta:
         verbose_name = _('Сабақ')
@@ -168,7 +168,7 @@ class Question(models.Model):
         Test, on_delete=models.CASCADE,
         related_name='questions', verbose_name=_('Тест')
     )
-    text = models.CharField(_('Сұрақ мәтіні'), max_length=500)
+    text = models.TextField(_('Сұрақ мәтіні'), max_length=500)
     order = models.PositiveIntegerField(_('Реті'), default=0)
 
     def __str__(self):
@@ -188,9 +188,10 @@ class Option(models.Model):
     )
     text = models.TextField(_('Жауап мәтіні'), max_length=255)
     is_correct = models.BooleanField(_('Дұрыс жауап'), default=False)
+    score = models.PositiveIntegerField(_('Балл'), default=0)
 
     def __str__(self):
-        return f"{self.text} ({'Дұрыс' if self.is_correct else 'Қате'})"
+        return f"ID:{self.question.pk} сұрақтың ID:{self.pk} нұсқасы"
 
     class Meta:
         verbose_name = _('Жауап нұсқасы')

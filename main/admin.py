@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from progress.models import UseTask
 from .models import Subject, Chapter, Lesson, TextContent, VideoContent, LessonDocs, Test, Question, Option, \
     FrameContent, Task
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
@@ -64,6 +66,19 @@ class LessonAdmin(SummernoteModelAdmin):
     inlines = (FileDocTab, TextContentTab, VideoContentTab, FrameContentTab, TaskTab, )
 
 
+# Task admin
+# ----------------------------------------------------------------------------------------------------------------------
+class UserTaskTab(SummernoteModelAdminMixin, admin.StackedInline):
+    model = UseTask
+    extra = 0
+
+
+@admin.register(Task)
+class TaskAdmin(SummernoteModelAdmin):
+    list_display = ('title', 'lesson', 'total_score', )
+    inlines = (UserTaskTab, )
+
+
 # Test admin
 # ----------------------------------------------------------------------------------------------------------------------
 class QuestionTab(SummernoteModelAdminMixin, admin.TabularInline):
@@ -86,9 +101,9 @@ class OptionTab(SummernoteModelAdminMixin, admin.TabularInline):
 
 
 @admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('text', 'test', 'order')
-    search_fields = ('text', 'test__title')
+class QuestionAdmin(SummernoteModelAdmin):
+    list_display = ('test', 'order')
+    search_fields = ('test__title', )
     ordering = ('order',)
 
     inlines = (OptionTab, )
