@@ -22,3 +22,19 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _('Пайдаланушы')
         verbose_name_plural = _('Пайдаланушылар')
+
+
+# Content model
+class Content(models.Model):
+    title = models.CharField(_('Тақырыбы'), max_length=128)
+    video = models.FileField(_('Видео'), upload_to='accounts/content/videos/', blank=True, null=True)
+    body = models.TextField(_('Мәтіні'), blank=True, null=True)
+    order = models.PositiveSmallIntegerField(_('Реттілік'), default=0)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _('Контент')
+        verbose_name_plural = _('Контенттер')
+        ordering = ('order', )

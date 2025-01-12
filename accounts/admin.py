@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
-from accounts.models import User
+from django_summernote.admin import SummernoteModelAdmin
+
+from accounts.models import User, Content
 
 
 class UserAdmin(BaseUserAdmin):
@@ -24,5 +26,11 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
+
+class ContentAdmin(SummernoteModelAdmin):
+    list_display = ('title', 'order', )
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(Content, ContentAdmin)
 admin.site.unregister(Group)

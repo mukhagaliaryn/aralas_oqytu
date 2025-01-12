@@ -1,0 +1,45 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+
+{% block title %}
+    {{ content.title }} | Білім алушыларға арналған онлайн білім беру платформасы
+{% endblock title %}
+
+
+{% block main_content %}
+<div class="max-w-screen-xl mx-auto p-4">
+    <div class="w-full flex items-start gap-4">
+        <div class="max-w-xs w-full grid gap-2 sticky top-36">
+            {% for item in contents %}
+                {% url 'content_detail' item.id as content_url %}
+                <a 
+                    href="{{ content_url }}"
+                    class="px-4 py-2.5 rounded-lg font-medium transition-all hover:bg-green-200 {% if request.path == content_url %}bg-green-600 text-white{% endif %}"    
+                >
+                    {{ item.title }}
+                </a>
+            {% endfor %}
+        </div>
+    
+        <div class="flex-1">
+            <div class="pb-4 border-b">
+                <h1 class="text-4xl font-semibold">{{ content.title }}</h1>
+            </div>
+
+            <div class="pt-4">
+                <video width="100%" height="" controls>
+                    <source src="{{ content.video.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+
+                <div class="text-justify text-gray-500 pt-2">
+                    {{ content.body|safe }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock main_content %}

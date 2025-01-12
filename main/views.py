@@ -2,6 +2,8 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+from accounts.models import Content
 from main.models import Subject, Lesson, Chapter, Test, Question, Option, TextContent, VideoContent, FrameContent, Task
 from progress.models import UserSubject, UserLesson, UserTest, UserAnswer, UseTask
 
@@ -9,7 +11,24 @@ from progress.models import UserSubject, UserLesson, UserTest, UserAnswer, UseTa
 # main
 # ----------------------------------------------------------------------------------------------------------------------
 def main(request):
-    return render(request, 'index.html', {})
+    contents = Content.objects.all()
+    context = {
+        'contents': contents
+    }
+    return render(request, 'index.html', context)
+
+
+# content detail
+# ----------------------------------------------------------------------------------------------------------------------
+def content_detail(request, pk):
+    content = get_object_or_404(Content, pk=pk)
+    contents = Content.objects.all()
+
+    context = {
+        'content': content,
+        'contents': contents
+    }
+    return render(request, 'content.html', context)
 
 
 # home

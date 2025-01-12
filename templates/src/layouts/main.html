@@ -9,7 +9,7 @@
 >
     <div class="flex-1">
         <!-- Header -->
-        <nav class="sticky top-0 bg-green-600">
+        <nav class="sticky top-0 bg-green-600 z-50">
             <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a 
                     href="{% url 'main' %}" 
@@ -139,6 +139,20 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="max-w-screen-xl w-full flex items-center justify-center mx-auto px-4">
+                <a href="{% url 'main' %}"
+                    class="flex  font-medium text-white py-2.5 px-4 transition-all hover:bg-green-700">
+                    Басты бет
+                </a>
+                {% for item in contents %}
+                    <a 
+                        href="{% url 'content_detail' item.id %}"
+                        class="flex  font-medium text-white py-2.5 px-4 transition-all hover:bg-green-700"    
+                    >
+                        {{ item.title }}
+                    </a>
+                {% endfor %}
             </div>
         </nav>
 
