@@ -48,129 +48,197 @@
                 </div>
             </div>
             
-            <!-- Started subjects -->
-            <div class="grid gap-4">
-                {% if started_subjects %}
-                    <h2 class="text-2xl font-semibold">Таңдалған пән бағдарламалары:</h2>
+            <div class="flex items-start gap-4">
+                <!-- Started subjects -->
+                <div class="grid gap-4 flex-1">
+                    {% if started_subjects %}
+                        <h2 class="text-2xl font-semibold">Таңдалған пән бағдарламалары:</h2>
 
-                    <div class="grid gap-4">
-                        {% for item in started_subjects %}
-                            <a href="{% url 'chapter_detail' item.id item.subject.chapters.first.id %}" class="relative flex border overflow-hidden rounded-lg transition-all hover:bg-gray-100">
-                                <img
-                                    class="w-32 md:w-36 lg:w-48"
-                                    src="{% if item.subject.poster %}{{ item.subject.poster.url }}{% else %}{% static 'images/poster.png' %}{% endif %}" 
-                                >
-                                <div class="flex-1 flex items-center justify-between py-2 px-4">
-                                    <div class="relative flex items-start gap-4">
-                                        <div class="">
-                                            <h5 class="line-clamp-1 sm:line-clamp-none text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                                                {{ item.subject.title }}
-                                            </h5>
-                                            <span class="text-gray-500">ID{{ item.subject.chapters.first.id }}:{{ item.subject.chapters.first.title }}</span>
-                                            <div class="flex gap-2 items-center">
-                                                <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M8.597 3.2A1 1 0 0 0 7.04 4.289a3.49 3.49 0 0 1 .057 1.795 3.448 3.448 0 0 1-.84 1.575.999.999 0 0 0-.077.094c-.596.817-3.96 5.6-.941 10.762l.03.049a7.73 7.73 0 0 0 2.917 2.602 7.617 7.617 0 0 0 3.772.829 8.06 8.06 0 0 0 3.986-.975 8.185 8.185 0 0 0 3.04-2.864c1.301-2.2 1.184-4.556.588-6.441-.583-1.848-1.68-3.414-2.607-4.102a1 1 0 0 0-1.594.757c-.067 1.431-.363 2.551-.794 3.431-.222-2.407-1.127-4.196-2.224-5.524-1.147-1.39-2.564-2.3-3.323-2.788a8.487 8.487 0 0 1-.432-.287Z"/>
-                                                </svg>
-                                                <div class="text-gray-500">
-                                                    <span class="">{{ item.subject.chapters.count }} модуль</span>
-                                                    |
-                                                    <span class="">{{ item.subject.lessons.count }} сабақ</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button 
-                                            data-modal-target="user_subject-modal" 
-                                            data-modal-toggle="user_subject-modal"
-                                            class="block bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg text-sm p-2.5"
-                                            type="button"
-                                        >
-                                            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                                            </svg>
-                                        </button>
-                                        
-                                        <div id="user_subject-modal" tabindex="-1"
-                                            class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                                            <div class="relative p-4 w-full max-w-md max-h-full">
-                                                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                                                    <button type="button"
-                                                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        data-modal-hide="user_subject-modal">
-                                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                            viewBox="0 0 14 14">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                                        </svg>
-                                                        <span class="sr-only">Close modal</span>
-                                                    </button>
-                                                    <div class="p-4 md:p-5 text-center">
-                                                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true"
-                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                        </svg>
-                                                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                                            <span class="font-semibold">{{ item.subject.title }}</span> пәнін нақты өшіресіз бе?                                                        </h3>
-                                                        <form method="POST">
-                                                            {% csrf_token %}
-                                                            <input type="hidden" name="delete_user_subject_id" value="{{ item.id }}">
-                                                            <button 
-                                                                data-modal-hide="user_subject-modal" 
-                                                                type="submit"
-                                                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-                                                            >
-                                                                Иә, өшіремін
-                                                            </button>
-                                                            <button 
-                                                                data-modal-hide="user_subject-modal" 
-                                                                type="button"
-                                                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                                                            >
-                                                                Жоқ, кері қайту
-                                                            </button>
-                                                        </form>
-                                                        
+                        <div class="grid gap-4">
+                            {% for item in started_subjects %}
+                                <div class="relative flex border overflow-hidden rounded-lg">
+                                    <img
+                                        class="w-32 md:w-36 lg:w-48"
+                                        src="{% if item.subject.poster %}{{ item.subject.poster.url }}{% else %}{% static 'images/poster.png' %}{% endif %}" 
+                                    >
+                                    <div class="flex-1 flex items-center justify-between py-2 px-4">
+                                        <div class="relative flex items-center gap-4">
+                                            <div class="">
+                                                <h5 class="line-clamp-1 sm:line-clamp-none text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                                                    {{ item.subject.title }}
+                                                </h5>
+                                                <span class="text-gray-500">ID{{ item.subject.chapters.first.id }}:{{ item.subject.chapters.first.title }}</span>
+                                                <div class="flex gap-2 items-center">
+                                                    <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M8.597 3.2A1 1 0 0 0 7.04 4.289a3.49 3.49 0 0 1 .057 1.795 3.448 3.448 0 0 1-.84 1.575.999.999 0 0 0-.077.094c-.596.817-3.96 5.6-.941 10.762l.03.049a7.73 7.73 0 0 0 2.917 2.602 7.617 7.617 0 0 0 3.772.829 8.06 8.06 0 0 0 3.986-.975 8.185 8.185 0 0 0 3.04-2.864c1.301-2.2 1.184-4.556.588-6.441-.583-1.848-1.68-3.414-2.607-4.102a1 1 0 0 0-1.594.757c-.067 1.431-.363 2.551-.794 3.431-.222-2.407-1.127-4.196-2.224-5.524-1.147-1.39-2.564-2.3-3.323-2.788a8.487 8.487 0 0 1-.432-.287Z"/>
+                                                    </svg>
+                                                    <div class="text-gray-500">
+                                                        <span class="">{{ item.subject.chapters.count }} модуль</span>
+                                                        |
+                                                        <span class="">{{ item.subject.lessons.count }} сабақ</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-    
-                                    </div>
 
-                                    <div 
-                                        class="radial-progress bg-gray-100 text-green-600 absolute left-8 sm:left-0 sm:relative" 
-                                        style="--value: {{ item.total_percent }}; --size:4rem;" 
-                                        role="progressbar"
-                                    >
-                                        {{ item.total_percent }}%
+                                            <a 
+                                                href="{% url 'chapter_detail' item.id item.subject.chapters.first.id %}"
+                                                class="flex items-center border bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg text-sm p-2.5"
+                                            >
+                                                <span>Сабаққа кіру</span>
+                                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m14 0-4 4m4-4-4-4"/>
+                                                </svg>
+                                                
+                                            </a>
+                                            
+                                            
+
+                                            <button 
+                                                data-modal-target="user_subject-modal"
+                                                data-modal-toggle="user_subject-modal"
+                                                class="block bg-white border hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg text-sm p-2.5"
+                                                type="button"
+                                            >
+                                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+                                                </svg>
+                                            </button>
+                                            
+                                            <div id="user_subject-modal" tabindex="-1"
+                                                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                <div class="relative p-4 w-full max-w-md max-h-full">
+                                                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                                        <button type="button"
+                                                            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                                            data-modal-hide="user_subject-modal">
+                                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 14 14">
+                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                            </svg>
+                                                            <span class="sr-only">Close modal</span>
+                                                        </button>
+                                                        <div class="p-4 md:p-5 text-center">
+                                                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                            </svg>
+                                                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                                                <span class="font-semibold">{{ item.subject.title }}</span> пәнін нақты өшіресіз бе?                                                        </h3>
+                                                            <form method="POST">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="delete_user_subject_id" value="{{ item.id }}">
+                                                                <button 
+                                                                    data-modal-hide="user_subject-modal" 
+                                                                    type="submit"
+                                                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                                                                >
+                                                                    Иә, өшіремін
+                                                                </button>
+                                                                <button 
+                                                                    data-modal-hide="user_subject-modal" 
+                                                                    type="button"
+                                                                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                                                                >
+                                                                    Жоқ, кері қайту
+                                                                </button>
+                                                            </form>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div 
+                                            class="radial-progress bg-gray-100 text-green-600 absolute left-8 sm:left-0 sm:relative" 
+                                            style="--value: {{ item.total_percent }}; --size:4rem;" 
+                                            role="progressbar"
+                                        >
+                                            {{ item.total_percent }}%
+                                        </div>
                                     </div>
                                 </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="max-w-2xl py-8 mx-auto text-gray-500">
-                        <svg class="w-24 h-24 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd" d="M11 4.717c-2.286-.58-4.16-.756-7.045-.71A1.99 1.99 0 0 0 2 6v11c0 1.133.934 2.022 2.044 2.007 2.759-.038 4.5.16 6.956.791V4.717Zm2 15.081c2.456-.631 4.198-.829 6.956-.791A2.013 2.013 0 0 0 22 16.999V6a1.99 1.99 0 0 0-1.955-1.993c-2.885-.046-4.76.13-7.045.71v15.081Z" clip-rule="evenodd"/>
-                        </svg>
-                        <h1 class="text-xl font-semibold">Әлі бірде сабақты бастаған жоқсыз!</h1>    
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="max-w-2xl py-8 mx-auto text-gray-500">
+                            <svg class="w-24 h-24 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M11 4.717c-2.286-.58-4.16-.756-7.045-.71A1.99 1.99 0 0 0 2 6v11c0 1.133.934 2.022 2.044 2.007 2.759-.038 4.5.16 6.956.791V4.717Zm2 15.081c2.456-.631 4.198-.829 6.956-.791A2.013 2.013 0 0 0 22 16.999V6a1.99 1.99 0 0 0-1.955-1.993c-2.885-.046-4.76.13-7.045.71v15.081Z" clip-rule="evenodd"/>
+                            </svg>
+                            <h1 class="text-xl font-semibold">Әлі бірде сабақты бастаған жоқсыз!</h1>    
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if completed_tasks or pending_tasks %}
+                    <div class="max-w-lg w-full grid gap-8">
+                        <!-- completed_tasks -->
+                        <div class="grid gap-4">
+                            <h1 class="text-2xl font-semibold">Орындалған тапсырмалар</h1>
+                            
+                            
+                            <div class="grid gap-2">
+                                {% for item in completed_tasks %}
+                                    <div class="rounded-lg p-4 border flex gap-2 items-center justify-between">
+                                        <div class="flex gap-2 items-center">
+                                            <svg class="w-12 h-12 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
+                                            </svg>
+                                            
+                                            <div>
+                                                <h1 class="text-xl font-semibold">{{ item.task.title }}</h1>
+                                                <span class="text-gray-500">Жалпы баға: {{ item.grade }}%</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid">
+                                            <a href="{{ item.submission.url }}" class="text-blue-500 font-medium">Тапсырма құжаты</a>
+                                            <span class="text-gray-500">{{ item.submitted_at }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+                        <!-- pending_tasks -->
+                        {% if pending_tasks %}
+                            <div class="grid gap-4">
+                                <h1 class="text-2xl font-semibold">Жіберілген тапсырмалар</h1>
+                                
+                                <div class="grid gap-2">
+                                    {% for item in pending_tasks %}
+                                        <div class="rounded-lg p-4 border flex gap-2 items-center justify-between">
+                                            <div class="flex gap-2 items-center">
+                                                <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5"/>
+                                                </svg>
+                                                
+                                                <div>
+                                                    <h1 class="text-xl font-semibold">{{ item.task.title }}</h1>
+                                                    <span class="text-gray-500">Жауап қаралуда...</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid">
+                                                <a href="{{ item.submission.url }}" class="text-blue-500 font-medium">Тапсырма құжаты</a>
+                                                <span class="text-gray-500">{{ item.submitted_at }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
+            
         </div>
     {% elif user_type == 'teacher' %}
-        <h2>Менің курстарым:</h2>
-        {% for subject in teacher_subjects %}
-            <p>{{ subject.title }}</p>
-        {% endfor %}
-        
-        <h2>Барлық курстар:</h2>
-        {% for user_subject in user_subjects %}
-            <p>{{ user_subject.subject.title }}</p>
-        {% endfor %}
-    {% else %}
-        <p>{{ message }}</p>
+        <h1>Admin</h1>
     {% endif %}
 </div>
 {% endblock home_content %}

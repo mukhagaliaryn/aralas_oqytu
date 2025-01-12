@@ -228,12 +228,100 @@
                             </div>
                             <h1 class="text-2xl font-semibold text-center">Сабақ аяқталды</h1>
                             <div class="text-gray-500">
-                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
-                                Ex error reprehenderit quasi suscipit facere totam veritatis, eum dolorum nihil delectus!
+                               Келесі сабаққа өте беруге болады!
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- User Test results -->
+                {% if user_test %}
+                    <div class="swiper-slide">
+                        <div class="max-w-screen-md w-full mx-auto py-8 text-center">
+                            <h3 class="text-2xl font-bold">Тест нәтижесі</h3>
+                            <div class="text-gray-500">
+                                <p>Тесттің атауы: <span class="font-semibold">{{ user_test.test.title }}</span></p>
+                                <p>Сіздің нәтижеңіз: <span class="font-semibold">{{ user_test.score }}%</span></p>
+                            </div>
+                            
+
+                            <ul class="mt-4 grid gap-8">
+                                {% for result in test_results %}
+                                    <li class="grid gap-4">
+                                        <h4 class="text-lg font-semibold">{{ forloop.counter }}.{{ result.question.text|safe }}</h4>
+                                        <div class="flex justify-center gap-4">
+                                            <div class="relative">
+                                                <p><strong>Дұрыс жауаптар:</strong></p>
+                                                <ul class="ml-4">
+                                                    {% for option in result.correct_options %}
+                                                        <li class="p-4 font-semibold rounded-lg bg-gray-100 text-gray-600">{{ option.text|safe }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+
+                                            <div class="relative">
+                                                <p><strong>Сіздің жауаптарыңыз:</strong></p>
+                                                <ul class="ml-4">
+                                                    {% for option in result.user_selected_options %}
+                                                        <li 
+                                                            class="p-4 font-semibold rounded-lg {% if option.is_correct %}bg-green-200 text-green-600{% else %}bg-red-200 text-red-600{% endif %}"
+                                                        >
+                                                            {{ option.text|safe }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                {% if task_results %}
+                    <div class="swiper-slide">
+                        <div class="max-w-screen-md w-full mx-auto py-8 text-center">
+                            <h3 class="text-2xl font-bold">Тапсырма нәтижелері</h3>
+                            <ul class="mt-4">
+                                {% for result in task_results %}
+                                    <li class="mb-6 grid gap-4">
+                                        <h4 class="text-lg font-semibold">Тапсырма: {{ result.task.title }}</h4>
+                                        <div>
+                                            <div class="flex gap-2 justify-center items-center">
+                                                <span>Жалпы ұпай:</span>
+                                                <span class="font-semibold">{{ result.task.total_score }}</span>
+                                            </div>
+
+                                            <div class="flex gap-2 justify-center items-center">
+                                                <span>Баға:</span>
+                                                <span class="font-semibold">{{ result.grade }}</span>
+                                            </div>
+
+                                            <div class="flex gap-2 justify-center items-center">
+                                                <span>Оқытушының пікірі:</span>
+                                                <span class="font-semibold">{{ result.feedback }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid gap-2 rounded-lg p-4 bg-gray-100">
+                                            <div class="text-center w-full">{{ result.task.description|safe }}</div>
+                                            {% if result.submission %}
+                                                <p><strong>Сіз жіберген файл:</strong> 
+                                                    <a href="{{ result.submission.url }}" class="text-blue-500" target="_blank">Файлды қарау</a>
+                                                </p>
+                                            {% else %}
+                                                <p><strong>Сіз файл жібермегенсіз.</strong></p>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
 
                 <!-- Text contents -->
                 {% if text_contents %}

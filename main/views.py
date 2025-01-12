@@ -22,8 +22,14 @@ def home(request):
         user_subjects = UserSubject.objects.filter(user=user)
         started_subjects = UserSubject.objects.filter(user=user, completed=False)
         finished_subjects = UserSubject.objects.filter(user=user, completed=True)
-        user_percent = 0
+        total_user_subject_score = 0
+        for user_subject in user_subjects:
+            total_user_subject_score += user_subject.total_percent
 
+        user_percent = total_user_subject_score / user_subjects.count()
+
+        completed_tasks = UseTask.objects.filter(user=user, is_done=True)
+        pending_tasks = UseTask.objects.filter(user=user, is_done=False)
 
         if request.method == 'POST':
             user_subject_id = request.POST.get('delete_user_subject_id')
@@ -39,12 +45,14 @@ def home(request):
             'started_subjects_count': started_subjects.count(),
             'finished_subjects_count': finished_subjects.count(),
             'user_percent': user_percent,
+            'completed_tasks': completed_tasks,
+            'pending_tasks': pending_tasks,
             'user_type': 'student'
         }
         return render(request, 'home/index.html', context)
 
     elif user.user_type == 'teacher':
-        raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
+        return redirect('/admin/')
 
 
 # subjects
@@ -288,6 +296,36 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
             'user_tests': user_tests,
             'next_lesson': next_lesson
         }
+
+        user_tasks = UseTask.objects.filter(user=user, user_lesson=user_lesson, is_done=True)
+        task_results = []
+        for user_task in user_tasks:
+            task_results.append({
+                'task': user_task.task,
+                'submission': user_task.submission,
+                'grade': user_task.grade,
+                'feedback': user_task.feedback,
+            })
+        context['task_results'] = task_results
+
+
+        user_test = UserTest.objects.filter(user=user, user_lesson=user_lesson, completed=True).first()
+        if user_test:
+            user_answers = UserAnswer.objects.filter(user_test=user_test)
+            test_results = []
+            for user_answer in user_answers:
+                correct_options = Option.objects.filter(question=user_answer.question, is_correct=True)
+                user_selected_options = user_answer.answers.all()
+
+                test_results.append({
+                    'question': user_answer.question,
+                    'correct_options': correct_options,
+                    'user_selected_options': user_selected_options,
+                })
+
+            context['test_results'] = test_results
+            context['user_test'] = user_test
+
         return render(request, 'subjects/lesson/index.html', context)
 
     elif user.user_type == 'teacher':
