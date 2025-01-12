@@ -259,7 +259,7 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 test_count = user_tests.filter(completed=True).count()
                 avg_test_score = (total_test_score / test_count) if test_count > 0 else 0
 
-                user_lesson.lesson_score = (avg_task_score + avg_test_score) / 2
+                user_lesson.lesson_score = (avg_task_score + avg_test_score) / (task_count + test_count)
                 user_lesson.completed = True
                 user_lesson.completed_at = timezone.now()
                 user_lesson.save()
@@ -329,7 +329,7 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
             context['test_results'] = test_results
             context['user_test'] = user_test
 
-        return render(request, 'subjects/lesson/index.html', context)
+        return render(request, 'subjects/lesson_detail.html', context)
 
     elif user.user_type == 'teacher':
         raise Http404('Оқытушыларға бұл бет қолжетімді емес.')
