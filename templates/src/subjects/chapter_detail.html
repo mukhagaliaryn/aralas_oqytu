@@ -9,7 +9,7 @@
 
 
 {% block home_content %}
-<div class="2xl:container mx-auto flex items-start gap-8 flex-col lg:flex-row p-4">
+<div class="2xl:container mx-auto flex items-start gap-8 flex-col xl:flex-row p-4">
     <!-- Detail -->
     <div class="flex-1">
         <div class="grid gap-2">
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Chapter lessons -->
-    <div class="max-w-screen-md w-full grid gap-2">
+    <div class="xl:max-w-screen-sm w-full grid gap-2">
         {% for item in user_lessons %}
             <a 
                 href="{% if item.is_open %}{% url 'lesson_detail' user_subject.id chapter.id item.id %}{% else %}#{% endif %}"
@@ -47,7 +47,7 @@
                         {% endif %}
                     </div>
                     <div>
-                        <h1 class="font-semibold md:text-lg">{{ chapter.order }}.{{ item.lesson.order }}: {{ item.lesson.title }}</h1>
+                        <h1 class="font-semibold md:text-lg line-clamp-1">{{ chapter.order }}.{{ item.lesson.order }}: {{ item.lesson.title }}</h1>
                         <div class="flex gap-2 text-gray-500 text-sm">
                             {% if item.lesson.text_contents.count %}
                                 <div class="flex gap-1 items-center">

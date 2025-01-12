@@ -12,8 +12,11 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+    <link 
+        href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" 
+        rel="stylesheet"
+    >
+    
 
     <!-- Tailwind and Flowbite -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.css" rel="stylesheet" />
@@ -35,6 +38,7 @@
                 },
                 fontFamily: {
                     inter: ['Inter Tight', 'sans-serif'],
+                    mono: ['Roboto Mono', 'sans-serif'],
                 },
             }
         }
@@ -59,7 +63,7 @@
 
 
     <!-- Scripts -->
-    <script src="{% static 'scripts/main-page.js' %}"></script>
-    <script src="{% static 'scripts/home-page.js' %}"></script>
+    {% block extra_js %}
+    {% endblock extra_js %}
 </body>
 </html>

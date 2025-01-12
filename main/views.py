@@ -220,6 +220,8 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                     user_task.feedback = feedback
                     user_task.save()
                     messages.success(request, f"'{user_task.task.title}' тапсырмасы сәтті жіберілді!")
+                    return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk,
+                                    user_lesson_pk=user_lesson.pk)
                 else:
                     messages.error(request, "Тапсырманы жіберу үшін құжатты тіркеу қажет!")
 
@@ -249,7 +251,9 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 user_test.completed = True
                 user_test.save()
                 messages.success(request, f"Тест аяқталды! Нәтижені сабақ аяқталғаннан соң көресіз!")
-                return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk, user_lesson_pk=user_lesson.pk)
+                return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk,
+                                user_lesson_pk=user_lesson.pk)
+
             elif action == 'complete_lesson':
                 total_task_score = sum(user_task.grade for user_task in user_tasks.filter(is_done=True))
                 task_count = user_tasks.filter(is_done=True).count()
@@ -279,6 +283,8 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
                 user_subject.save()
                 messages.success(request, 'Сабақ аяқталды!')
+                return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk,
+                        user_lesson_pk=user_lesson.pk)
 
         next_lesson = UserLesson.objects.filter(
             user_subject=user_subject,
