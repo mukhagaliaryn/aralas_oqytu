@@ -23,10 +23,13 @@ def home(request):
         started_subjects = UserSubject.objects.filter(user=user, completed=False)
         finished_subjects = UserSubject.objects.filter(user=user, completed=True)
         total_user_subject_score = 0
+        user_percent = 0
         for user_subject in user_subjects:
             total_user_subject_score += user_subject.total_percent
-
-        user_percent = total_user_subject_score / user_subjects.count()
+        try:
+            user_percent = total_user_subject_score / user_subjects.count()
+        except:
+            pass
 
         completed_tasks = UseTask.objects.filter(user=user, is_done=True)
         pending_tasks = UseTask.objects.filter(user=user, is_done=False)
