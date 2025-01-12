@@ -249,7 +249,7 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 user_test.completed = True
                 user_test.save()
                 messages.success(request, f"Тест аяқталды! Нәтижені сабақ аяқталғаннан соң көресіз!")
-
+                return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk, user_lesson_pk=user_lesson.pk)
             elif action == 'complete_lesson':
                 total_task_score = sum(user_task.grade for user_task in user_tasks.filter(is_done=True))
                 task_count = user_tasks.filter(is_done=True).count()

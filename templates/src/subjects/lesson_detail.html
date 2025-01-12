@@ -54,7 +54,7 @@
                                             </svg>
                                             
                                             <div>
-                                                <h1 class="text-xl font-semibold text-center">{{ item.title }}</h1>
+                                                <h1 class="text-xl font-semibold">{{ item.title }}</h1>
                                                 <span class="text-gray-500">{{ item.lesson.title }}</span>
                                             </div>
                                         </div>
@@ -101,74 +101,6 @@
                     </div>
                 {% endif %}
 
-                
-                <!-- Tasks -->
-                {% if user_lesson.lesson.tasks.all %}
-                    <div class="swiper-slide overflow-auto">
-                        {% for task in user_lesson.lesson.tasks.all %}
-                            <div class="relative w-full h-full">
-                                {% if not user_tasks %}
-                                    <div class="grid gap-8 max-w-screen-md w-full mx-auto py-8">
-                                        <div class="grid gap-4 text-center">
-                                            <div class="flex gap-2 items-center">
-                                                <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14H4m6.5 3L8 20m5.5-3 2.5 3M4.88889 17H19.1111c.4909 0 .8889-.4157.8889-.9286V4.92857C20 4.41574 19.602 4 19.1111 4H4.88889C4.39797 4 4 4.41574 4 4.92857V16.0714c0 .5129.39797.9286.88889.9286ZM13 14v-3h4v3h-4Z"/>
-                                                </svg>
-                                                <h1 class="text-2xl font-semibold">{{ task.title }}</h1>
-                                            </div>
-                                            <div class="text-gray-500 text-justify">
-                                                {{ task.description|safe }}
-                                            </div>
-                                        </div>
-
-                                        <form 
-                                            method="post" enctype="multipart/form-data"
-                                            class="grid gap-2"    
-                                        >
-                                            {% csrf_token %}
-                                            <div class="grid gap-2">
-                                                <input type="hidden" name="action" value="submit_task">
-                                                <input type="hidden" name="task_id" value="{{ task.id }}">
-                                                <input 
-                                                    id="file_input"
-                                                    name="submission" 
-                                                    type="file" required
-                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                                >
-                                                <textarea 
-                                                    id="message" 
-                                                    rows="4" 
-                                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" 
-                                                    placeholder="Өз жауабыңызды осында жазыңыз..."
-                                                    name="feedback"
-                                                    required
-                                                >
-                                                </textarea>
-                                            </div>
-                                            
-                                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
-                                                Тапсырманы жіберу
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% else %}
-                                    <div class="h-full flex justify-center items-center">
-                                        <div class="max-w-screen-md text-center w-full grid gap-2">
-                                            <svg class="w-24 h-24 text-blue-600 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5"/>
-                                            </svg>
-                                            <h1 class="text-2xl font-semibold text-center">Тапсырма жіберілді!</h1>
-                                            <div class="text-gray-500">
-                                                Оқытушының бағалауын күтіңіз!
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
                 <!-- Tests -->
                 {% if user_lesson.lesson.tests.all %}
                     <div class="swiper-slide overflow-auto">
@@ -183,9 +115,6 @@
                                                 </svg>
                                                 <h1 class="text-2xl font-semibold">{{ test.title }}</h1>
                                             </div>
-                                            <div class="text-gray-500">
-                                                {{ test.description|safe }}
-                                            </div>
                                         </div>
 
                                         <form method="POST" class="grid gap-4">
@@ -194,7 +123,7 @@
                                             <input type="hidden" name="test_id" value="{{ test.id }}">
                                             {% for question in test.questions.all %}
                                                 <div class="py-4 border-b grid gap-2">
-                                                    <h4 class="text-lg font-semibold">{{ forloop.counter }}.{{ question.text|safe }}</h4>
+                                                    <h4 class="text-lg font-semibold flex">{{ forloop.counter }}. {{ question.text|safe }}</h4>
                                                     {% for option in question.options.all %}
                                                         <div class="flex items-center">
                                                             <div class="flex items-center gap-2 px-2 w-full rounded-lg hover:bg-gray-100">
@@ -239,6 +168,72 @@
                         {% endfor %}
                     </div>
                 {% endif %}
+
+                <!-- Tasks -->
+                {% if user_lesson.lesson.tasks.all %}
+                    <div class="swiper-slide overflow-auto">
+                        {% for task in user_lesson.lesson.tasks.all %}
+                            <div class="relative w-full h-full">
+                                {% if not user_tasks %}
+                                    <div class="grid gap-8 max-w-screen-md w-full mx-auto py-8">
+                                        <div class="grid gap-4 text-center">
+                                            <div class="flex gap-2 items-center">
+                                                <svg class="w-12 h-12 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14H4m6.5 3L8 20m5.5-3 2.5 3M4.88889 17H19.1111c.4909 0 .8889-.4157.8889-.9286V4.92857C20 4.41574 19.602 4 19.1111 4H4.88889C4.39797 4 4 4.41574 4 4.92857V16.0714c0 .5129.39797.9286.88889.9286ZM13 14v-3h4v3h-4Z"/>
+                                                </svg>
+                                                <h1 class="text-2xl font-semibold">{{ task.title }}</h1>
+                                            </div>
+                                            <div class="text-gray-500 text-justify">
+                                                {{ task.description|safe }}
+                                            </div>
+                                        </div>
+
+                                        <form 
+                                            method="post" enctype="multipart/form-data"
+                                            class="grid gap-2"    
+                                        >
+                                            {% csrf_token %}
+                                            <div class="grid gap-2">
+                                                <input type="hidden" name="action" value="submit_task">
+                                                <input type="hidden" name="task_id" value="{{ task.id }}">
+                                                <input 
+                                                    id="file_input"
+                                                    name="submission" 
+                                                    type="file" required
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                                >
+                                                <textarea 
+                                                    name="feedback"
+                                                    rows="4"
+                                                    cols="30"
+                                                    class="block w-full p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" 
+                                                    placeholder="Өз жауабыңызды осында жазыңыз..."
+                                                    required
+                                                ></textarea>
+                                            </div>
+                                            
+                                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
+                                                Тапсырманы жіберу
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="h-full flex justify-center items-center">
+                                        <div class="max-w-screen-md text-center w-full grid gap-2">
+                                            <svg class="w-24 h-24 text-blue-600 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5"/>
+                                            </svg>
+                                            <h1 class="text-2xl font-semibold text-center">Тапсырма жіберілді!</h1>
+                                            <div class="text-gray-500">
+                                                Оқытушының бағалауын күтіңіз!
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
             
             <div class="swiper-pagination"></div>
@@ -246,7 +241,6 @@
             <div class="swiper-button-prev"></div>
         </div>
     {% else %}
-        
         <div class="swiper lessonSwiper swiper-h w-full h-full">
             <div class="swiper-wrapper">
                 <!-- Finished -->
@@ -270,7 +264,7 @@
 
                 <!-- User Test results -->
                 {% if user_test %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide overflow-auto">
                         <div class="max-w-screen-md w-full mx-auto py-8 text-center">
                             <h3 class="text-2xl font-bold">Тест нәтижесі</h3>
                             <div class="text-gray-500">
@@ -356,7 +350,6 @@
                     </div>
                 {% endif %}
 
-
                 <!-- Text contents -->
                 {% if text_contents %}
                     <div class="swiper-slide grid overflow-auto">
@@ -392,7 +385,7 @@
                                             </svg>
                                             
                                             <div>
-                                                <h1 class="text-xl font-semibold text-center">{{ item.title }}</h1>
+                                                <h1 class="text-xl font-semibold">{{ item.title }}</h1>
                                                 <span class="text-gray-500">{{ item.lesson.title }}</span>
                                             </div>
                                         </div>

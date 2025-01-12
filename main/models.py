@@ -30,7 +30,7 @@ class Chapter(models.Model):
     order = models.PositiveIntegerField(_('Order'))
 
     def __str__(self):
-        return f"{self.subject.title}: {self.order}-модуль:{self.title}"
+        return f"{self.subject.title}: {self.order} - модуль: {self.title}"
 
     class Meta:
         verbose_name = _('Модуль')
@@ -52,7 +52,7 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField(_('Order'), default=0)
 
     def __str__(self):
-        return f"{self.chapter.pk}-{self.chapter.title}: {self.title}"
+        return f"{self.chapter.pk} - модуль: {self.chapter.title}. {self.title}"
 
     class Meta:
         verbose_name = _('Сабақ')
@@ -69,7 +69,7 @@ class LessonDocs(models.Model):
     file = models.FileField(_('Файл'), upload_to='main/lesson/docs/', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.title} - {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Сабақ құжаты')
@@ -86,7 +86,7 @@ class TextContent(models.Model):
     content = models.TextField(_('Мәтін'))
 
     def __str__(self):
-        return f"Мәтінді контент: {self.lesson.title}"
+        return f"ID:{self.pk} - мәтінді контент: {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Мәтін контент')
@@ -103,7 +103,7 @@ class VideoContent(models.Model):
     duration = models.PositiveSmallIntegerField(_('Видео уақыт'), default=0)
 
     def __str__(self):
-        return f"Видеоконтент: {self.lesson.title}"
+        return f"ID{self.pk} - видео контент: {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Видео контент')
@@ -119,7 +119,7 @@ class FrameContent(models.Model):
     url = models.TextField(_('URL iframe сілтеме'))
 
     def __str__(self):
-        return f"Фрейм контент: {self.lesson.title}"
+        return f"ID{self.pk} - фрейм контент: {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Фрейм контент')
@@ -137,7 +137,7 @@ class Task(models.Model):
     total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
 
     def __str__(self):
-        return f"{self.lesson.title}: {self.title}"
+        return f"Тапсырма: {self.title} - {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Тапсырма')
@@ -151,11 +151,10 @@ class Test(models.Model):
         related_name='tests', verbose_name=_('Сабақ')
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
-    description = models.TextField(_('Тест сипаттамасы'), blank=True, null=True)
     total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
 
     def __str__(self):
-        return f"{self.lesson.title}: {self.title}"
+        return f"Тест: {self.title} - {self.lesson.title}"
 
     class Meta:
         verbose_name = _('Тест')
@@ -168,11 +167,11 @@ class Question(models.Model):
         Test, on_delete=models.CASCADE,
         related_name='questions', verbose_name=_('Тест')
     )
-    text = models.TextField(_('Сұрақ мәтіні'), max_length=500)
+    text = models.TextField(_('Сұрақ мәтіні'))
     order = models.PositiveIntegerField(_('Реті'), default=0)
 
     def __str__(self):
-        return f"{self.text} ({self.test.title})"
+        return f"{self.test.title}. {self.order} - сұрақ"
 
     class Meta:
         verbose_name = _('Сұрақ')
@@ -191,7 +190,7 @@ class Option(models.Model):
     score = models.PositiveIntegerField(_('Балл'), default=0)
 
     def __str__(self):
-        return f"ID:{self.question.pk} сұрақтың ID:{self.pk} нұсқасы"
+        return f"{self.question.test.title}. {self.question.order} - сұрақ ID:{self.pk} нұсқасы"
 
     class Meta:
         verbose_name = _('Жауап нұсқасы')

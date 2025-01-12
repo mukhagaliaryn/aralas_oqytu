@@ -48,7 +48,7 @@ class FrameContentTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = FrameContent
     extra = 0
 
-class TaskTab(admin.TabularInline):
+class TaskTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Task
     extra = 0
 
