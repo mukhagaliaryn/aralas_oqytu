@@ -154,7 +154,11 @@ class Test(models.Model):
     total_score = models.PositiveIntegerField(_('Жалпы балл'), default=100)
 
     def __str__(self):
-        return f"Тест: {self.title} - {self.lesson.title}"
+        return (f""
+                f"ID:{self.pk} тест: {self.title}. "
+                f"{self.lesson.chapter.pk}-модуль. {self.lesson.chapter.title} "
+                f"- {self.lesson.title}"
+                f"")
 
     class Meta:
         verbose_name = _('Тест')
