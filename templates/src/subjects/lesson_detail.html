@@ -233,9 +233,9 @@
 
                 <!-- Tasks -->
                 {% if user_lesson.lesson.tasks.all %}
-                    <div class="swiper-slide overflow-auto">
+                    <div class="swiper-slide h-full overflow-auto">
                         {% for task in user_lesson.lesson.tasks.all %}
-                            <div class="relative w-full h-full">
+                            <div class="relative w-full">
                                 {% if not user_tasks %}
                                     <div class="grid gap-8 max-w-screen-md w-full mx-auto py-8">
                                         <div class="grid gap-4 text-center">
