@@ -185,7 +185,7 @@ class Option(models.Model):
         Question, on_delete=models.CASCADE,
         related_name='options', verbose_name=_('Сұрақ')
     )
-    text = models.TextField(_('Жауап мәтіні'), max_length=255)
+    text = models.TextField(_('Жауап мәтіні'), blank=True, null=True)
     is_correct = models.BooleanField(_('Дұрыс жауап'), default=False)
     score = models.PositiveIntegerField(_('Балл'), default=0)
 

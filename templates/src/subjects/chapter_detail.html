@@ -22,7 +22,7 @@
     </div>
 
     <!-- Chapter lessons -->
-    <div class="xl:max-w-screen-sm w-full grid gap-2">
+    <div class="xl:max-w-lg 2xl:max-w-2xl w-full grid gap-2">
         {% for item in user_lessons %}
             <a 
                 href="{% if item.is_open %}{% url 'lesson_detail' user_subject.id chapter.id item.id %}{% else %}#{% endif %}"
