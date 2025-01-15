@@ -103,6 +103,7 @@ class OptionTab(SummernoteModelAdminMixin, admin.TabularInline):
 @admin.register(Question)
 class QuestionAdmin(SummernoteModelAdmin):
     list_display = ('test', 'order')
+    list_filter = ('test', )
     search_fields = ('test__title', )
     ordering = ('order',)
 
