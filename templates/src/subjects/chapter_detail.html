@@ -9,7 +9,7 @@
 
 
 {% block home_content %}
-<div class="2xl:container mx-auto flex items-start gap-8 flex-col xl:flex-row p-4">
+<div class="2xl:container mx-auto flex items-start gap-8 flex-col 2xl:flex-row p-4">
     <!-- Detail -->
     <div class="flex-1">
         <div class="grid gap-2">
@@ -22,14 +22,15 @@
     </div>
 
     <!-- Chapter lessons -->
-    <div class="xl:max-w-lg 2xl:max-w-2xl w-full grid gap-2">
+    <div class="2xl:max-w-2xl w-full grid gap-2">
+        <h1 class="text-xl 2xl:text-2xl font-semibold">Модуль сабақтары</h1>
         {% for item in user_lessons %}
             <a 
                 href="{% if item.is_open %}{% url 'lesson_detail' user_subject.id chapter.id item.id %}{% else %}#{% endif %}"
                 class="flex items-center justify-between gap-4 p-4 border transition-all hover:bg-gray-100 rounded-lg"
             >
                 <div class="flex items-start gap-2">
-                    <div class="relative">
+                    <div class="relative p-2 rounded-lg flex justify-center items-center bg-gray-100">
                         {% if item.completed %}
                             <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                                 <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
@@ -47,7 +48,7 @@
                         {% endif %}
                     </div>
                     <div>
-                        <h1 class="font-semibold md:text-lg line-clamp-1">{{ chapter.order }}.{{ item.lesson.order }}: {{ item.lesson.title }}</h1>
+                        <h1 class="font-medium lg:text-lg 2xl:text-xl line-clamp-1">{{ chapter.order }}.{{ item.lesson.order }}: {{ item.lesson.title }}</h1>
                         <div class="flex gap-2 text-gray-500 text-sm">
                             {% if item.lesson.text_contents.count %}
                                 <div class="flex gap-1 items-center">

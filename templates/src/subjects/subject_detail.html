@@ -9,7 +9,7 @@
 
 
 {% block home_content %}
-<div class="2xl:container mx-auto flex items-start gap-4 flex-col lg:flex-row p-4">
+<div class="2xl:container mx-auto flex items-start gap-4 flex-col 2xl:flex-row p-4">
     <!-- Detail -->
     <div class="grid gap-4 flex-1">
         <div class="w-full rounded-xl overflow-hidden">
@@ -92,7 +92,7 @@
     </div>
 
     <!-- Subject chapters -->
-    <div class="xl:max-w-lg 2xl:max-w-2xl w-full grid gap-4">
+    <div class="2xl:max-w-2xl w-full grid gap-4">
         <h1 class="text-xl 2xl:text-2xl font-semibold">Пән жоспары</h1>
         <div class="grid gap-2">
             <div id="accordion-collapse" data-accordion="collapse" class="rounded-lg border overflow-hidden">
@@ -100,7 +100,7 @@
                     <h2 id="accordion-collapse-heading-{{ chapter.id }}">
                         <button 
                             type="button"
-                            class="flex items-center justify-between w-full text-lg md:text-xl p-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 focus:ring-4 focus:ring-gray-200 hover:bg-gray-100 gap-3"
+                            class="flex items-center justify-between w-full lg:text-lg 2xl:text-xl p-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 focus:ring-4 focus:ring-gray-200 hover:bg-gray-100 gap-3"
                             data-accordion-target="#accordion-collapse-body-{{ chapter.id }}" aria-expanded="true"
                             aria-controls="accordion-collapse-body-{{ chapter.id }}"
                         >
@@ -117,13 +117,13 @@
                             {% for lesson in chapter.lessons.all %}
                                 <div class="flex items-start justify-between gap-4 p-4 border-b">
                                     <div class="flex items-start gap-2">
-                                        <div class="relative">
+                                        <div class="relative p-2 rounded-lg flex justify-center items-center bg-gray-100">
                                             <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.03v13m0-13c-2.819-.831-4.715-1.076-8.029-1.023A.99.99 0 0 0 3 6v11c0 .563.466 1.014 1.03 1.007 3.122-.043 5.018.212 7.97 1.023m0-13c2.819-.831 4.715-1.076 8.029-1.023A.99.99 0 0 1 21 6v11c0 .563-.466 1.014-1.03 1.007-3.122-.043-5.018.212-7.97 1.023"/>
                                             </svg>
                                         </div>
                                         <div>
-                                            <h1 class="font-medium md:text-lg">{{ chapter.order }}.{{ forloop.counter }}: {{ lesson.title }}</h1>
+                                            <h1 class="font-medium lg:text-lg 2xl:text-xl">{{ chapter.order }}.{{ forloop.counter }}: {{ lesson.title }}</h1>
                                             <div class="flex gap-2 text-gray-500 text-sm">
                                                 {% if lesson.text_contents.count %}
                                                     <div class="flex gap-1 items-center">

@@ -115,7 +115,7 @@
                             <textarea 
                                 id="htmlCode" 
                                 placeholder="HTML кодты жазу..." 
-                                class="flex-1 border border-gray-300 rounded-lg p-4 resize-none font-mono bg-gray-100"></textarea>
+                                class="flex-1 border border-gray-300 text-sm rounded-lg p-4 resize-none font-mono bg-gray-100"></textarea>
                         </div>
                 
                         <!-- CSS Editor -->
@@ -128,7 +128,7 @@
                                 <h1 class="text-xl font-semibold">CSS3</h1>
                             </div>
                             <textarea id="cssCode" placeholder="CSS кодты жазу..." 
-                                class="flex-1 border border-gray-300 rounded-lg p-4 resize-none font-mono bg-gray-100"></textarea>
+                                class="flex-1 border border-gray-300 text-sm rounded-lg p-4 resize-none font-mono bg-gray-100"></textarea>
                         </div>
 
                         <!-- JavaScript Editor -->
@@ -140,7 +140,7 @@
                                 <h1 class="text-xl font-semibold">JavaScript</h1>
                             </div>
                             <textarea id="jsCode" placeholder="JavaScript код жазу..." 
-                                class="flex-1 border border-gray-300 rounded-lg p-4 resize-none font-mono bg-gray-100"></textarea>
+                                class="flex-1 border border-gray-300 rounded-lg text-sm p-4 resize-none font-mono bg-gray-100"></textarea>
                         </div>
                     </div>
                 
@@ -185,7 +185,14 @@
                                             <input type="hidden" name="test_id" value="{{ test.id }}">
                                             {% for question in test.questions.all %}
                                                 <div class="py-4 border-b grid gap-2">
-                                                    <h4 class="text-lg font-semibold flex items-center">{{ forloop.counter }}. {{ question.text|safe }}</h4>
+                                                    <div class="flex items-start gap-2">
+                                                        <div class="font-semibold">
+                                                            {{ forloop.counter }}.
+                                                        </div>
+                                                        <div class="font-medium">
+                                                            {{ question.text|safe }}
+                                                        </div>
+                                                    </div>
                                                     {% for option in question.options.all %}
                                                         <div class="flex items-center">
                                                             <div class="flex items-center gap-2 px-2 w-full rounded-lg hover:bg-gray-100">
