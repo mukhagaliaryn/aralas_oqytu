@@ -201,7 +201,7 @@
         </div>
 
 
-        {% if first_user_subject and not first_user_subject.completed %}
+        {% if first_user_subject and first_user_subject.completed %}
             <form method="post" action="{% url 'generate_cert' first_user_subject.subject.id %}" class="grid gap-4">
                 {% csrf_token %}
                 <img src="{% static 'images/cert.png' %}" class="w-full" alt="">
