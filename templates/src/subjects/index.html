@@ -57,7 +57,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <div class="flex -space-x-4 rtl:space-x-reverse">
-                                {% for user in item.user_subjects.all %}
+                                {% for user in item.user_subjects.all|slice:":3" %}
                                     <img 
                                         class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" 
                                         src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/user.png' %}{% endif %}" alt=""
