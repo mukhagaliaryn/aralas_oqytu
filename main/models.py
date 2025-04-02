@@ -3,12 +3,14 @@ from django.utils.translation import gettext_lazy as _
 
 
 # Subject model
+# ----------------------------------------------------------------------------------------------------------------------
 class Subject(models.Model):
     title = models.CharField(_('Тақырыбы'), max_length=255)
     poster = models.ImageField(_('Постер'), blank=True, null=True, upload_to='main/subject/posters')
     description = models.TextField(_('Анықтамасы'), blank=True, null=True)
     created_at = models.DateTimeField(_('Уақыты'), auto_now_add=True)
     view = models.PositiveIntegerField(_('Қаралым'), default=0)
+    cert = models.FileField(_('Сертификат'), blank=True, null=True, upload_to='main/subject/certs')
 
     def __str__(self):
         return self.title
@@ -20,6 +22,7 @@ class Subject(models.Model):
 
 
 # Chapter model
+# ----------------------------------------------------------------------------------------------------------------------
 class Chapter(models.Model):
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE,
@@ -38,6 +41,7 @@ class Chapter(models.Model):
 
 
 # Lesson model
+# ----------------------------------------------------------------------------------------------------------------------
 class Lesson(models.Model):
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE,
@@ -60,6 +64,7 @@ class Lesson(models.Model):
 
 
 # LessonDoc model
+# ----------------------------------------------------------------------------------------------------------------------
 class LessonDocs(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
@@ -77,6 +82,7 @@ class LessonDocs(models.Model):
 
 
 # TextContent model
+# ----------------------------------------------------------------------------------------------------------------------
 class TextContent(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
@@ -94,6 +100,7 @@ class TextContent(models.Model):
 
 
 # VideoContent model
+# ----------------------------------------------------------------------------------------------------------------------
 class VideoContent(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
@@ -111,6 +118,7 @@ class VideoContent(models.Model):
 
 
 # VideoContent model
+# ----------------------------------------------------------------------------------------------------------------------
 class FrameContent(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
@@ -127,6 +135,7 @@ class FrameContent(models.Model):
 
 
 # Task content
+# ----------------------------------------------------------------------------------------------------------------------
 class Task(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
@@ -145,6 +154,7 @@ class Task(models.Model):
 
 
 # Test content
+# ----------------------------------------------------------------------------------------------------------------------
 class Test(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,

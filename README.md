@@ -1,1 +1,1 @@
-# ARALAS OQYTU
+# Aralas oqytu
