@@ -199,7 +199,7 @@ def generate_certificate_view(request, subject_pk):
 
         # Course number
         # --------------------------------------------------------------------------------------------------------------
-        course_name = f'N{user_subject.id}'
+        course_name = f'N00{user_subject.id}'
         can.setFont('GeorgiaPro', 18)
         can.setFillColor(HexColor("#000000"))
         can.drawCentredString(224, 116, course_name)
