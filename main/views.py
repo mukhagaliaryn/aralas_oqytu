@@ -208,7 +208,8 @@ def generate_certificate_view(request, subject_pk):
         can.save()
         packet.seek(0)
 
-        template_pdf = PdfReader(subject.cert.file)
+        cert_path = os.path.join(settings.BASE_DIR, 'templates', 'static', 'images', 'cert.pdf')
+        template_pdf = PdfReader(cert_path)
         overlay_pdf = PdfReader(packet)
 
         for page, overlay in zip(template_pdf.pages, overlay_pdf.pages):

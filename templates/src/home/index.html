@@ -65,9 +65,12 @@
                                     <div class="flex-1 flex items-center justify-between py-2 px-4">
                                         <div class="relative flex items-center gap-4">
                                             <div class="">
-                                                <h5 class="line-clamp-1 sm:line-clamp-none text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                                                <a 
+                                                    href="{% url 'subject_detail' item.subject.id %}"
+                                                    class="line-clamp-1 sm:line-clamp-none text-xl font-semibold tracking-tight text-gray-900 hover:text-green-600"
+                                                >
                                                     {{ item.subject.title }}
-                                                </h5>
+                                                </a>
                                                 <span class="text-gray-500">ID{{ item.subject.chapters.first.id }}:{{ item.subject.chapters.first.title }}</span>
                                                 <div class="flex gap-2 items-center">
                                                     <svg class="w-6 h-6 text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
