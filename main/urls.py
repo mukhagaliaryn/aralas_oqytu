@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .services import generate_certificate_view, export_user_course_report_excel
+from .services import generate_certificate_view, export_user_course_report_excel, export_user_courses_report_excel
 
 urlpatterns = [
     path('', views.main, name='main'),
@@ -13,4 +13,5 @@ urlpatterns = [
 
     path('subject/<subject_pk>/cert/', generate_certificate_view, name='generate_cert'),
     path('export/user-course/<int:user_subject_id>/report/', export_user_course_report_excel, name='export_user_course_report_excel'),
+    path('export/user-courses/report/', export_user_courses_report_excel, name='export_user_courses_report_excel'),
 ]

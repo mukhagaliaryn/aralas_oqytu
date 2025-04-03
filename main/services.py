@@ -121,7 +121,10 @@ def export_user_course_report_excel(request, user_subject_id):
     # ===== STUDENT INFO =====
     info = {
         'Аты-жөні:': f'{user_subject.user.last_name} {user_subject.user.first_name}',
+        'Мамандық': user_subject.user.profession if user_subject.user.profession else '-',
         'Пән:': f'{user_subject.subject.title}',
+        'Факультет:': f'Физика-математика',
+        'Топ:': f'B00{user_subject.id}',
         'Сабақтар саны:': f'{user_subject.user_lessons.count()}',
         'Аяқталған сабақтар саны:': f'{user_subject.user_lessons.filter(completed=True).count()}',
         'Статус:': 'Аяқталды' if user_subject.completed else 'Аяқталмады',
@@ -197,6 +200,122 @@ def export_user_course_report_excel(request, user_subject_id):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     filename = f'user_subject_{user_subject.id}_report.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+# Export excel user_subject
+# ----------------------------------------------------------------------------------------------------------------------
+def export_user_courses_report_excel(request):
+    user_subjects = UserSubject.objects.all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f'Жалпы топ ведомосттары'
+
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # ===== HEADER =====
+    ws.merge_cells('A2:G2')
+    ws['A2'] = '“Өзбекәлі Жәнібеков атындағы Оңтүстік Қазақстан педагогикалық университеті”'
+    ws['A2'].font = Font(name='Times New Roman', size=12, bold=True)
+    ws['A2'].alignment = Alignment(horizontal='center', wrap_text=True)
+
+    ws.merge_cells('A3:G3')
+    ws['A3'] = 'Некоммерческое акционерное общество "Южно-Казахстанский педагогический университет имени Өзбекали Жанибекова"'
+    ws['A3'].font = Font(name='Times New Roman', size=11, bold=True)
+    ws['A3'].alignment = Alignment(horizontal='center', wrap_text=True)
+
+    # ===== LOGO ORTADA =====
+    logo_path = os.path.join('templates', 'static', 'images', 'zh-logo.png')  # Өз жолыңмен ауыстыр
+    if os.path.exists(logo_path):
+        logo = XLImage(logo_path)
+        logo.width = 200
+        logo.height = 80
+        logo.anchor = 'C4'  # Ортасына
+        ws.add_image(logo)
+
+    # ===== ВЕДОМОСТЬ ТАҚЫРЫБЫ =====
+    ws.merge_cells('A9:G9')
+    ws['A9'] = 'ЖЕКЕ БІЛІМАЛУШЫ ВЕДОМОСІ'
+    ws['A9'].font = Font(size=14, bold=True)
+    ws['A9'].alignment = Alignment(horizontal='center')
+
+    # ===== STUDENT INFO =====
+    info = {
+        'Тобы:': f'B00',
+        'Факультет:': f'Физика-математика',
+        'Пәндер саны:': f'{user_subjects.count()}',
+    }
+
+    row_idx = 11
+    for label, value in info.items():
+        ws[f'A{row_idx}'] = label
+        ws[f'B{row_idx}'] = value
+        row_idx += 1
+
+    # ===== TABLE HEADER =====
+    table_row = row_idx + 2
+    headers = ['Пән', 'Білім алушы', 'Пән бағасы', 'Статус', 'Орындалған уақыты']
+
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=table_row, column=col_idx, value=header)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    # ===== TABLE CONTENT =====
+    for i, user_subject in enumerate(user_subjects, 1):
+        title = user_subject.subject.title
+        full_name = f'{user_subject.user.first_name} {user_subject.user.last_name}'
+        subject_score = f'{user_subject.total_percent}%'
+        status = 'Орындалды' if user_subject.completed else '-'
+        created_at = (
+            user_subject.created_at.astimezone(timezone.utc).replace(tzinfo=None)
+            if user_subject.created_at else '-'
+        )
+
+        values = [title, full_name, subject_score, status, created_at,]
+
+        for j, val in enumerate(values, 1):
+            cell = ws.cell(row=table_row + i, column=j, value=val)
+            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            cell.border = thin_border
+
+    # ===== FOOTER =====
+    footer_row = table_row + i + 3
+    ws[f'A{footer_row}'] = 'Мұғалімнің қолы: _______________________'
+
+    # ===== AUTO WIDTH (MAX 42) =====
+    for col_idx in range(1, 1 + len(headers)):
+        max_len = 0
+        col_letter = get_column_letter(col_idx)
+        for row in range(table_row, table_row + i + 1):
+            val = ws.cell(row=row, column=col_idx).value
+            if val:
+                max_len = max(max_len, len(str(val)))
+        ws.column_dimensions[col_letter].width = min(max(max_len + 2, 12), 42)
+
+    # ===== GRID OFF =====
+    ws.sheet_view.showGridLines = False
+
+    # ===== HIDE UNUSED COLUMNS & ROWS =====
+    for col_idx in range(8, 100):
+        ws.column_dimensions[get_column_letter(col_idx)].hidden = True
+    for row in range(footer_row + 2, 100):
+        ws.row_dimensions[row].hidden = True
+
+    # ===== VISIBLE AREA =====
+    ws.sheet_view.selection[0].sqref = f"A1:G{footer_row+1}"
+    ws.print_area = f"A1:G{footer_row+1}"
+
+    # ===== EXPORT =====
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'user_subjects_report.xlsx'
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     wb.save(response)
     return response
