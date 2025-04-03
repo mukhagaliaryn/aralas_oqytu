@@ -16,6 +16,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from openpyxl.styles import Font, Alignment, Border, Side
 from main.models import Subject
 from progress.models import UserSubject
+from openpyxl.drawing.image import Image as XLImage
 
 
 # Generate certificate
@@ -101,22 +102,33 @@ def export_user_course_report_excel(request, user_subject_id):
     ws['A3'].font = Font(name='Times New Roman', size=11, bold=True)
     ws['A3'].alignment = Alignment(horizontal='center', wrap_text=True)
 
-    ws.merge_cells('A5:G5')
-    ws['A5'] = 'ЖЕКЕ БІЛІМАЛУШЫ ВЕДОМОСІ'
-    ws['A5'].font = Font(size=14, bold=True)
-    ws['A5'].alignment = Alignment(horizontal='center')
+    # ===== LOGO ORTADA =====
+    logo_path = os.path.join('templates', 'static', 'images', 'zh-logo.png')  # Өз жолыңмен ауыстыр
+    if os.path.exists(logo_path):
+        logo = XLImage(logo_path)
+        logo.width = 200
+        logo.height = 80
+        logo.anchor = 'C4'  # Ортасына
+        ws.add_image(logo)
+
+    # ===== ВЕДОМОСТЬ ТАҚЫРЫБЫ =====
+    ws.merge_cells('A9:G9')
+    ws['A9'] = 'ЖЕКЕ БІЛІМАЛУШЫ ВЕДОМОСІ'
+    ws['A9'].font = Font(size=14, bold=True)
+    ws['A9'].alignment = Alignment(horizontal='center')
 
     # ===== STUDENT INFO =====
     info = {
         'Аты-жөні:': f'{user_subject.user.last_name} {user_subject.user.first_name}',
-        'Факультеті:': '',
-        'Білім беру бағдарламасы:': '',
-        'Тобы:': '',
-        'Тапсырған күні:': '',
-        'Оқытушы:': '',
+        'Пән:': f'{user_subject.subject.title}',
+        'Сабақтар саны:': f'{user_subject.user_lessons.count()}',
+        'Аяқталған сабақтар саны:': f'{user_subject.user_lessons.filter(completed=True).count()}',
+        'Статус:': 'Аяқталды' if user_subject.completed else 'Аяқталмады',
+        'Басталған уақыты': user_subject.created_at.astimezone(timezone.utc).replace(tzinfo=None) if user_subject.created_at else '-',
+        'Жалпы бағасы:': f'{user_subject.total_percent}%',
     }
 
-    row_idx = 7
+    row_idx = 11
     for label, value in info.items():
         ws[f'A{row_idx}'] = label
         ws[f'B{row_idx}'] = value
@@ -126,7 +138,7 @@ def export_user_course_report_excel(request, user_subject_id):
     table_row = row_idx + 2
     headers = ['Сабақ', 'Сабақ уақыты', 'Тапсырма бағасы', 'Тестілеу бағасы', 'Жалпы бағалау', 'Статус', 'Орындалған уақыты']
 
-    for col_idx, header in enumerate(headers, 1):  # A=1
+    for col_idx, header in enumerate(headers, 1):
         cell = ws.cell(row=table_row, column=col_idx, value=header)
         cell.font = Font(bold=True)
         cell.alignment = Alignment(horizontal='center')
@@ -156,7 +168,7 @@ def export_user_course_report_excel(request, user_subject_id):
     footer_row = table_row + i + 3
     ws[f'A{footer_row}'] = 'Мұғалімнің қолы: _______________________'
 
-    # ===== AUTO WIDTH (MAX 42 units ≈ 300px) =====
+    # ===== AUTO WIDTH (MAX 42) =====
     for col_idx in range(1, 1 + len(headers)):
         max_len = 0
         col_letter = get_column_letter(col_idx)
@@ -169,13 +181,13 @@ def export_user_course_report_excel(request, user_subject_id):
     # ===== GRID OFF =====
     ws.sheet_view.showGridLines = False
 
-    # ===== HIDE UNUSED COLUMNS/ROWS =====
+    # ===== HIDE UNUSED COLUMNS & ROWS =====
     for col_idx in range(8, 100):
         ws.column_dimensions[get_column_letter(col_idx)].hidden = True
     for row in range(footer_row + 2, 100):
         ws.row_dimensions[row].hidden = True
 
-    # ===== LIMIT VISIBLE AREA =====
+    # ===== VISIBLE AREA =====
     ws.sheet_view.selection[0].sqref = f"A1:G{footer_row+1}"
     ws.print_area = f"A1:G{footer_row+1}"
 
