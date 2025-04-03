@@ -1,20 +1,10 @@
-import os
-from django.conf import settings
-from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-import io
-from reportlab.lib.colors import HexColor
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, landscape, A4
-from pdfrw import PdfReader, PdfWriter, PageMerge
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-from accounts.models import Content
+from accounts.models import Content, User
 from main.models import Subject, Lesson, Chapter, Test, Question, Option, TextContent, VideoContent, FrameContent, Task
 from progress.models import UserSubject, UserLesson, UserTest, UserAnswer, UseTask
 
@@ -85,7 +75,25 @@ def home(request):
         return render(request, 'home/index.html', context)
 
     elif user.user_type == 'teacher':
-        return redirect('/admin/')
+        user_query = request.GET.get('user', '')
+        subject_query = request.GET.get('subject', '')
+
+        user_subjects = UserSubject.objects.all()
+
+        if user_query:
+            user_subjects = user_subjects.filter(user__pk=user_query)
+
+        if subject_query:
+            user_subjects = user_subjects.filter(subject__pk=subject_query)
+
+        context = {
+            'user_subjects': user_subjects,
+            'user_query': user_query,
+            'subject_query': subject_query,
+            'users': User.objects.filter(user_type='student'),
+            'subjects': Subject.objects.all()
+        }
+        return render(request, 'dashboard/index.html', context)
 
 
 # subjects
@@ -165,63 +173,6 @@ def subject_detail(request, subject_pk):
     elif user.user_type == 'teacher':
         raise Http404("Оқытушыларға бұл бет қолжетімді емес.")
 
-
-@login_required
-def generate_certificate_view(request, subject_pk):
-    user = request.user
-    subject = get_object_or_404(Subject, pk=subject_pk)
-    user_subject = UserSubject.objects.filter(user=request.user, subject=subject).order_by('id').first()
-
-    if request.method == 'POST':
-        packet = io.BytesIO()
-
-        font_path = os.path.join(settings.BASE_DIR, 'templates', 'static', 'fonts', 'Georgia', 'GeorgiaPro-Bold.ttf')
-        pdfmetrics.registerFont(TTFont('GeorgiaPro', font_path))
-
-        page_width, page_height = landscape(A4)
-        can = canvas.Canvas(packet, pagesize=(page_width, page_height))
-
-        # Full name
-        # --------------------------------------------------------------------------------------------------------------
-        can.setFont('GeorgiaPro', 36)
-        can.setFillColor(HexColor("#a17b41"))
-
-        full_name = f'{user.first_name} {user.last_name}'
-        can.drawCentredString(page_width / 2, 340, full_name)
-
-
-        # Course name
-        # --------------------------------------------------------------------------------------------------------------
-        course_name = f'{subject.title}'
-        can.setFont('GeorgiaPro', 24)
-        can.setFillColor(HexColor("#0d491d"))
-        can.drawCentredString(page_width / 2, 280, course_name)
-
-        # Course number
-        # --------------------------------------------------------------------------------------------------------------
-        course_name = f'N00{user_subject.id}'
-        can.setFont('GeorgiaPro', 18)
-        can.setFillColor(HexColor("#000000"))
-        can.drawCentredString(224, 116, course_name)
-
-        # Save all
-        can.save()
-        packet.seek(0)
-
-        cert_path = os.path.join(settings.BASE_DIR, 'templates', 'static', 'images', 'cert.pdf')
-        template_pdf = PdfReader(cert_path)
-        overlay_pdf = PdfReader(packet)
-
-        for page, overlay in zip(template_pdf.pages, overlay_pdf.pages):
-            merger = PageMerge(page)
-            merger.add(overlay).render()
-
-        output = io.BytesIO()
-        PdfWriter(output, trailer=template_pdf).write()
-        output.seek(0)
-        return HttpResponse(output, content_type='application/pdf')
-
-    return HttpResponse("GET сұраныс рұқсат етілмейді.", status=405)
 
 # chapter_detail
 # ----------------------------------------------------------------------------------------------------------------------
