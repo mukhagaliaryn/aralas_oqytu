@@ -174,7 +174,7 @@
                         <span class="ms-3">Басты бет</span>
                     </a>
                 </li>
-                {% if user.status == 'student' %}
+                {% if user.user_type == 'student' %}
                     <li>
                         <a href="{% url 'subjects' %}"
                             class="flex items-center p-2 text-white rounded-lg hover:bg-green-500 group {% if request.path == '/subjects/' %}bg-green-700{% endif %}">
