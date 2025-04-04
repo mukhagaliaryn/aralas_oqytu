@@ -3,7 +3,6 @@ from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-
 from accounts.models import Content, User
 from main.models import Subject, Lesson, Chapter, Test, Question, Option, TextContent, VideoContent, FrameContent, Task
 from progress.models import UserSubject, UserLesson, UserTest, UserAnswer, UseTask
@@ -63,8 +62,6 @@ def home(request):
 
         context = {
             'user_subjects': user_subjects,
-            'started_subjects': started_subjects,
-            'finished_subjects': finished_subjects,
             'started_subjects_count': started_subjects.count(),
             'finished_subjects_count': finished_subjects.count(),
             'user_percent': user_percent,
@@ -314,12 +311,14 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 if next_lesson:
                     next_lesson.is_open = True
                     next_lesson.save()
+                else:
+                    user_subject.completed_at = timezone.now()
+                    user_subject.completed = True
 
                 completed_lessons = UserLesson.objects.filter(user_subject=user_subject, completed=True)
                 total_score = sum(lesson.lesson_score for lesson in completed_lessons)
                 total_lessons = UserLesson.objects.filter(user_subject=user_subject).count()
                 user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
-                user_subject.completed = all(ul.completed for ul in UserLesson.objects.filter(user_subject=user_subject))
                 user_subject.save()
                 messages.success(request, 'Сабақ аяқталды!')
                 return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk,

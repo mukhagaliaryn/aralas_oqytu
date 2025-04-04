@@ -2,6 +2,8 @@ import os
 import io
 import subprocess
 from datetime import timezone
+
+import pytz
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.contrib.auth.decorators import login_required
@@ -122,8 +124,9 @@ def export_user_course_report_excel(request, user_subject_id):
 
     # ===== STUDENT INFO =====
     start_time = user_subject.created_at
+    kazakhstan_timezone = pytz.timezone('Asia/Almaty')
     if start_time:
-        start_time = start_time.astimezone(timezone.utc).replace(tzinfo=None)
+        start_time = start_time.astimezone(kazakhstan_timezone).replace(tzinfo=None)
         start_time = start_time.strftime('%Y-%m-%d %H:%M:%S')
 
     info = {
@@ -160,11 +163,11 @@ def export_user_course_report_excel(request, user_subject_id):
         title = user_lesson.lesson.title
         duration = user_lesson.lesson.duration
         task_score = f'{sum([t.grade for t in user_lesson.user_tasks.all()])}%'
-        test_score = f'{sum([t.score for t in user_lesson.user_tests.all()])}%'
-        lesson_score = f'{user_lesson.lesson_score}'
+        test_score = f'{sum([t.score for t in user_lesson.user_tests.all()])}%' if sum([t.score for t in user_lesson.user_tests.all()]) else '-'
+        lesson_score = f'{user_lesson.lesson_score}%'
         status = 'Орындалды' if user_lesson.completed else '-'
         submitted_at = (
-            user_lesson.completed_at.astimezone(timezone.utc).replace(tzinfo=None)
+            user_lesson.completed_at.astimezone(kazakhstan_timezone).replace(tzinfo=None)
             if user_lesson.completed_at else '-'
         )
 
