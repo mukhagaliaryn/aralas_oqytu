@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Buttons -->
-                    <div class="relative">
+                    <div class="relative flex gap-4">
                         {% if user_lesson.completed %}
                             {% if next_lesson %}
                                 <a 
@@ -71,6 +71,21 @@
                                     </form>
                                 {% endif %}
                             {% endfor %}
+                        {% endif %}
+
+                        {% if user_subject.completed %}
+                            <form method="post" action="{% url 'generate_cert' user_subject.subject.id %}" class="grid gap-4">
+                                {% csrf_token %}
+                                <button 
+                                    type="submit"
+                                    class="flex items-center gap-2 py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                                >
+                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
+                                    </svg>
+                                    <span>Сертификат алу</span>
+                                </button>
+                            </form>
                         {% endif %}
                     </div>
                 </div>

@@ -64,6 +64,14 @@ def generate_certificate_view(request, subject_pk):
         can.setFillColor(HexColor("#000000"))
         can.drawCentredString(224, 116, course_name)
 
+        # Course completed date
+        # --------------------------------------------------------------------------------------------------------------
+        completed_at = user_subject.completed_at.strftime('%d.%m.%Y')
+        course_name = f'{completed_at}'
+        can.setFont('GeorgiaPro', 14)
+        can.setFillColor(HexColor("#000000"))
+        can.drawCentredString(492, 213, course_name)
+
         # Save all
         can.save()
         packet.seek(0)
