@@ -253,7 +253,7 @@ def export_user_courses_report_excel(request):
     # ===== STUDENT INFO =====
 
     info = {
-        'Авторы:': f'Меруерт Бағланова',
+        'Авторы:': f'Меруерт Бағланова Сыдыковна',
         'Білім алушылар саны': User.objects.all().count(),
         'Орындалған пәндер саны:': user_subjects.count(),
         'Жалпы пәндер саны:': f'{user_subjects.count()}',
