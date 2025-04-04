@@ -15,6 +15,8 @@ from pdfrw import PdfReader, PdfWriter, PageMerge
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from openpyxl.styles import Font, Alignment, Border, Side
+
+from accounts.models import User
 from main.models import Subject
 from progress.models import UserSubject
 from openpyxl.drawing.image import Image as XLImage
@@ -119,16 +121,21 @@ def export_user_course_report_excel(request, user_subject_id):
     ws['A9'].alignment = Alignment(horizontal='center')
 
     # ===== STUDENT INFO =====
+    start_time = user_subject.created_at
+    if start_time:
+        start_time = start_time.astimezone(timezone.utc).replace(tzinfo=None)
+        start_time = start_time.strftime('%Y-%m-%d %H:%M:%S')
+
     info = {
         'Аты-жөні:': f'{user_subject.user.last_name} {user_subject.user.first_name}',
-        'Мамандық': user_subject.user.profession if user_subject.user.profession else '-',
+        'Факультет:': user_subject.user.faculty,
+        'Мамандық': user_subject.user.profession,
+        'Топ:': user_subject.user.group,
         'Пән:': f'{user_subject.subject.title}',
-        'Факультет:': f'Физика-математика',
-        'Топ:': f'B00{user_subject.id}',
         'Сабақтар саны:': f'{user_subject.user_lessons.count()}',
-        'Аяқталған сабақтар саны:': f'{user_subject.user_lessons.filter(completed=True).count()}',
+        'Аяқталған сабақтар саны:': user_subject.user_lessons.filter(completed=True).count(),
         'Статус:': 'Аяқталды' if user_subject.completed else 'Аяқталмады',
-        'Басталған уақыты': user_subject.created_at.astimezone(timezone.utc).replace(tzinfo=None) if user_subject.created_at else '-',
+        'Басталған уақыты': start_time,
         'Жалпы бағасы:': f'{user_subject.total_percent}%',
     }
 
@@ -152,9 +159,9 @@ def export_user_course_report_excel(request, user_subject_id):
     for i, user_lesson in enumerate(user_subject.user_lessons.all(), 1):
         title = user_lesson.lesson.title
         duration = user_lesson.lesson.duration
-        task_score = sum([t.grade for t in user_lesson.user_tasks.all()])
-        test_score = sum([t.score for t in user_lesson.user_tests.all()])
-        lesson_score = user_lesson.lesson_score
+        task_score = f'{sum([t.grade for t in user_lesson.user_tasks.all()])}%'
+        test_score = f'{sum([t.score for t in user_lesson.user_tests.all()])}%'
+        lesson_score = f'{user_lesson.lesson_score}'
         status = 'Орындалды' if user_lesson.completed else '-'
         submitted_at = (
             user_lesson.completed_at.astimezone(timezone.utc).replace(tzinfo=None)
@@ -239,15 +246,17 @@ def export_user_courses_report_excel(request):
 
     # ===== ВЕДОМОСТЬ ТАҚЫРЫБЫ =====
     ws.merge_cells('A9:G9')
-    ws['A9'] = 'ЖЕКЕ БІЛІМАЛУШЫ ВЕДОМОСІ'
+    ws['A9'] = 'ЖАЛПЫ ТОПТЫҢ ВЕДОМОСІ'
     ws['A9'].font = Font(size=14, bold=True)
     ws['A9'].alignment = Alignment(horizontal='center')
 
     # ===== STUDENT INFO =====
+
     info = {
-        'Тобы:': f'B00',
-        'Факультет:': f'Физика-математика',
-        'Пәндер саны:': f'{user_subjects.count()}',
+        'Авторы:': f'Меруерт Бағланова',
+        'Білім алушылар саны': User.objects.all().count(),
+        'Орындалған пәндер саны:': user_subjects.count(),
+        'Жалпы пәндер саны:': f'{user_subjects.count()}',
     }
 
     row_idx = 11
@@ -258,7 +267,7 @@ def export_user_courses_report_excel(request):
 
     # ===== TABLE HEADER =====
     table_row = row_idx + 2
-    headers = ['Пән', 'Білім алушы', 'Пән бағасы', 'Статус', 'Орындалған уақыты']
+    headers = ['Пән', 'Білім алушы', 'Факультет', 'Мамандық', 'Тобы', 'Пән бағасы', 'Статус', 'Орындалған уақыты']
 
     for col_idx, header in enumerate(headers, 1):
         cell = ws.cell(row=table_row, column=col_idx, value=header)
@@ -270,14 +279,17 @@ def export_user_courses_report_excel(request):
     for i, user_subject in enumerate(user_subjects, 1):
         title = user_subject.subject.title
         full_name = f'{user_subject.user.first_name} {user_subject.user.last_name}'
+        faculty = user_subject.user.faculty
+        profession = user_subject.user.profession
+        group = user_subject.user.group
         subject_score = f'{user_subject.total_percent}%'
         status = 'Орындалды' if user_subject.completed else '-'
-        created_at = (
-            user_subject.created_at.astimezone(timezone.utc).replace(tzinfo=None)
-            if user_subject.created_at else '-'
+        completed_at = (
+            user_subject.completed_at.astimezone(timezone.utc).replace(tzinfo=None)
+            if user_subject.completed_at else '-'
         )
 
-        values = [title, full_name, subject_score, status, created_at,]
+        values = [title, full_name, faculty, profession, group, subject_score, status, completed_at,]
 
         for j, val in enumerate(values, 1):
             cell = ws.cell(row=table_row + i, column=j, value=val)

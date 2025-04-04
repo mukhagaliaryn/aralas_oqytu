@@ -14,7 +14,9 @@ class User(AbstractUser):
         help_text=_('Сурет шаршы форматта болуы керек. Мысалы: (512x512)px')
     )
     user_type = models.CharField(_('Пайдаланушы түрі'), choices=USER_TYPE, default='student', max_length=128)
-    profession = models.CharField(_('Профессия'), max_length=128, blank=True, null=True)
+    faculty = models.CharField(_('Факультет'), max_length=128, blank=True, null=True)
+    group = models.CharField(_('Тобы'), max_length=128, blank=True, null=True)
+    profession = models.CharField(_('Мамандық'), max_length=128, blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

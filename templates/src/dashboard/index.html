@@ -75,6 +75,9 @@
                         Жазылған пәні
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Басталған/аяқталған уақыты
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         Статус
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -95,11 +98,19 @@
                             <img class="w-10 h-10 rounded-full" src="{% if user.avatar %}{{ user_subject.user.avatar.url }}{% else %}{% static '/images/user.png'%}{% endif %}" alt="Jese image">
                             <div class="ps-3">
                                 <div class="text-base font-semibold">{{ user_subject.user.first_name }} {{ user_subject.user.last_name }}</div>
-                                <div class="font-normal text-gray-500">neil.sims@flowbite.com</div>
+                                <div class="font-normal text-gray-500">{{ user_subject.user.email }}</div>
                             </div>  
                         </th>
                         <td class="px-6 py-4">
                             {{ user_subject.subject.title }}
+                        </td>
+                        <td class="px-6 py-4 grid gap-1">
+                            <span>
+                                {{ user_subject.created_at }}
+                            </span>
+                            <span>
+                                {% if user_subject.completed_at %}{{ user_subject.completed_at }}{% else %}-{% endif %}
+                            </span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center">

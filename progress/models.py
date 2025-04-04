@@ -16,6 +16,7 @@ class UserSubject(models.Model):
     total_percent = models.PositiveSmallIntegerField(_('Жалпы ұпай пайызы'), default=0)
     completed = models.BooleanField(_('Орындалды'), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(_('Орындалған уақыты'), blank=True, null=True)
 
     class Meta:
         unique_together = ('user', 'subject')
