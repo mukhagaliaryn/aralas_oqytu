@@ -7,7 +7,7 @@ from .models import UserSubject, UserLesson, UserTest, UserAnswer, UseTask
 # ----------------------------------------------------------------------------------------------------------------------
 @admin.register(UserSubject)
 class UserSubjectAdmin(admin.ModelAdmin):
-    list_display = ('user', 'subject', 'created_at', 'total_percent', )
+    list_display = ('user', 'subject', 'created_at', 'completed', 'total_percent', )
     list_filter = ('user', 'subject', 'completed', )
     search_fields = ('user__username', 'subject__title')
 

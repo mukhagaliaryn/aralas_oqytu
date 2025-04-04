@@ -36,8 +36,8 @@
                             <a href="{% url 'home' %}">
                                 <img src="{% static 'images/logo.png' %}" class="w-28" alt="BL Logo" />
                             </a>
-                            <div class="hidden md:grid">
-                                <h1 class="text-2xl text-white font-black">{{ user_lesson.lesson.title }}</h1>
+                            <div class="hidden md:grid max-w-screen-xl w-fll line-clamp-1">
+                                <h1 class="text-2xl text-white font-black line-clamp-1">{{ user_lesson.lesson.title }}</h1>
                                 <span class="text-gray-100">{{ user_lesson.lesson.chapter.title }}</span>
                             </div>
                         </div>
@@ -46,12 +46,16 @@
                     <!-- Buttons -->
                     <div class="relative">
                         {% if user_lesson.completed %}
-                            <a 
-                                href="{% url 'lesson_detail' user_subject.id chapter.id next_lesson.id %}" 
-                                class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
-                            >
-                                Келесі сабаққа өту
-                            </a >
+                            {% if next_lesson %}
+                                <a 
+                                    href="{% url 'lesson_detail' user_subject.id chapter.id next_lesson.id %}" 
+                                    class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                                >
+                                    Келесі сабаққа өту
+                                </a >
+                            {% else %}
+                                <span class="text-white">Пән бағдарламасы аяқталды!</span>
+                            {% endif %}
                         {% else %}
                             {% for item in user_tasks %}
                                 {% if item.is_done %}

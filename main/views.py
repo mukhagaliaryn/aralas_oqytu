@@ -319,6 +319,7 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
                 total_score = sum(lesson.lesson_score for lesson in completed_lessons)
                 total_lessons = UserLesson.objects.filter(user_subject=user_subject).count()
                 user_subject.total_percent = total_score / total_lessons if total_lessons > 0 else 0
+                user_subject.completed = all(ul.completed for ul in UserLesson.objects.filter(user_subject=user_subject))
                 user_subject.save()
                 messages.success(request, 'Сабақ аяқталды!')
                 return redirect('lesson_detail', user_subject_pk=user_subject.pk, chapter_pk=chapter.pk,
@@ -341,7 +342,7 @@ def lesson_detail(request, user_subject_pk, chapter_pk, user_lesson_pk):
             'frame_contents': frame_contents,
             'user_tasks': user_tasks,
             'user_tests': user_tests,
-            'next_lesson': next_lesson
+            'next_lesson': next_lesson or None
         }
 
         user_tasks = UseTask.objects.filter(user=user, user_lesson=user_lesson, is_done=True)
