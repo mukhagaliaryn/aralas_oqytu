@@ -1,3 +1,4 @@
+import datetime
 import os
 import io
 import subprocess
@@ -230,7 +231,7 @@ def export_user_courses_report_excel(request):
 
     wb = Workbook()
     ws = wb.active
-    ws.title = f'Жалпы топ ведомосттары'
+    ws.title = f'Жалпы топ ведомосты'
 
     thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
                          top=Side(style='thin'), bottom=Side(style='thin'))
@@ -262,12 +263,13 @@ def export_user_courses_report_excel(request):
     ws['A9'].alignment = Alignment(horizontal='center')
 
     # ===== STUDENT INFO =====
-
+    group_date = datetime.datetime.now()
     info = {
-        'Авторы:': f'Меруерт Бағланова Сыдыковна',
+        'Оқытушының аты-жөні:': f'Меруерт Бағланова Сыдыковна',
         'Білім алушылар саны': User.objects.all().count(),
         'Орындалған пәндер саны:': user_subjects.count(),
         'Жалпы пәндер саны:': f'{user_subjects.count()}',
+        'Топ ведомость шығарылған уақыты': group_date.strftime('%d.%m.%Y %H:%M:%S')
     }
 
     row_idx = 11
@@ -296,11 +298,11 @@ def export_user_courses_report_excel(request):
         subject_score = f'{user_subject.total_percent}%'
         status = 'Орындалды' if user_subject.completed else '-'
         completed_at = (
-            user_subject.completed_at.astimezone(timezone.utc).replace(tzinfo=None)
+            user_subject.completed_at.strftime('%d.%m.%Y %H:%M:%S')
             if user_subject.completed_at else '-'
         )
 
-        values = [title, full_name, faculty, profession, group, subject_score, status, completed_at,]
+        values = [title, full_name, faculty, profession, group, subject_score, status, completed_at]
 
         for j, val in enumerate(values, 1):
             cell = ws.cell(row=table_row + i, column=j, value=val)
